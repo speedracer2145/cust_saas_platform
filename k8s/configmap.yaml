@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: roberta-sentiment-config
+  namespace: roberta-sentiment
+data:
+  MODEL_NAME: "cardiffnlp/twitter-roberta-base-sentiment-latest"
+  HOST: "0.0.0.0"
+  PORT: "8000"
+  LOG_LEVEL: "info"
+  BATCH_SIZE: "32"
+  MAX_BATCH_SIZE: "1000"
+  USE_CUDA: "true"
+  TORCH_DTYPE: "auto"
+  DEFAULT_TIMESERIES_HOURS: "24"
+  DATABASE_PATH: "/app/data/sentiment_results.db"
+  CORS_ORIGINS: "*"

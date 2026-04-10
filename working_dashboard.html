@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoBERTa Sentiment Analysis - Working Dashboard</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --secondary-color: #64748b;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.875rem;
+        }
+
+        .header-stat {
+            text-align: center;
+        }
+
+        .header-stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: block;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: var(--card-background);
+            border-radius: 0.75rem;
+            padding: 0.25rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            background: none;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+        }
+
+        .nav-tab.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--card-background);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .stat-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        .stat-icon.positive { background: rgba(16, 185, 129, 0.1); color: var(--success-color); }
+        .stat-icon.negative { background: rgba(239, 68, 68, 0.1); color: var(--danger-color); }
+        .stat-icon.neutral { background: rgba(100, 116, 139, 0.1); color: var(--secondary-color); }
+        .stat-icon.total { background: rgba(37, 99, 235, 0.1); color: var(--primary-color); }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .chart-container {
+            height: 400px;
+            margin: 1rem 0;
+        }
+
+        .chart-container-large {
+            height: 500px;
+            margin: 1rem 0;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-card {
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .sentiment-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .sentiment-positive { background: rgba(16, 185, 129, 0.1); color: var(--success-color); }
+        .sentiment-negative { background: rgba(239, 68, 68, 0.1); color: var(--danger-color); }
+        .sentiment-neutral { background: rgba(100, 116, 139, 0.1); color: var(--secondary-color); }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <h1>
+                <i class="fas fa-brain"></i>
+                RoBERTa Sentiment Analysis
+            </h1>
+            <div class="header-stats">
+                <div class="header-stat">
+                    <span class="header-stat-value" id="header-total">Loading...</span>
+                    <span>Total Analyzed</span>
+                </div>
+                <div class="header-stat">
+                    <span class="header-stat-value" id="header-uptime">Checking...</span>
+                    <span>Status</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('dashboard')">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </button>
+            <button class="nav-tab" onclick="showTab('analyze')">
+                <i class="fas fa-search"></i> Analyze Text
+            </button>
+            <button class="nav-tab" onclick="showTab('import')">
+                <i class="fas fa-upload"></i> Import Data
+            </button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon positive">
+                        <i class="fas fa-smile"></i>
+                    </div>
+                    <div class="stat-value" id="positive-count">0</div>
+                    <div class="stat-label">Positive Reviews</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon negative">
+                        <i class="fas fa-frown"></i>
+                    </div>
+                    <div class="stat-value" id="negative-count">0</div>
+                    <div class="stat-label">Negative Reviews</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon neutral">
+                        <i class="fas fa-meh"></i>
+                    </div>
+                    <div class="stat-value" id="neutral-count">0</div>
+                    <div class="stat-label">Neutral Reviews</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon total">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="stat-value" id="total-count">0</div>
+                    <div class="stat-label">Total Analyzed</div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-pie"></i>
+                            Sentiment Distribution
+                        </h3>
+                    </div>
+                    <div class="chart-container" id="sentiment-pie-chart"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-smile"></i>
+                            Detailed Emotions
+                        </h3>
+                    </div>
+                    <div class="chart-container" id="emotion-chart"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-box"></i>
+                        Products by Sentiment
+                    </h3>
+                    <button onclick="loadData()" class="btn btn-primary">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh Data
+                    </button>
+                </div>
+                <div class="chart-container-large" id="product-chart"></div>
+            </div>
+        </div>
+
+        <!-- Analyze Text Tab -->
+        <div id="analyze" class="tab-content">
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-edit"></i>
+                            Text Analysis
+                        </h3>
+                    </div>
+                    <form id="analysis-form">
+                        <div class="form-group">
+                            <label class="form-label">Enter text to analyze:</label>
+                            <textarea id="analysis-text" class="form-textarea" placeholder="Enter your text here..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Product (optional):</label>
+                            <input type="text" id="analysis-product" class="form-input" placeholder="Product name">
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                            Analyze
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-bar"></i>
+                            Analysis Result
+                        </h3>
+                    </div>
+                    <div id="analysis-result">
+                        <p style="color: var(--text-secondary);">Enter text and click "Analyze" to see results.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Import Data Tab -->
+        <div id="import" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-file-csv"></i>
+                        CSV Import
+                    </h3>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Upload CSV File:</label>
+                    <input type="file" id="csv-file" class="form-input" accept=".csv">
+                </div>
+                <button onclick="processCSV()" class="btn btn-primary" id="import-btn">
+                    <i class="fas fa-upload"></i>
+                    Import & Analyze
+                </button>
+                <div id="import-result" style="margin-top: 1rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        let globalStats = { positive: 0, negative: 0, neutral: 0, total: 0, emotions: {} };
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, initializing...');
+            loadData();
+        });
+
+        // Tab switching
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Main data loading function
+        async function loadData() {
+            console.log('Loading data...');
+            
+            try {
+                // Load statistics
+                const statsResponse = await fetch(`${API_BASE}/sentiment/statistics`);
+                if (statsResponse.ok) {
+                    const stats = await statsResponse.json();
+                    console.log('Stats loaded:', stats);
+                    
+                    const distribution = stats.sentiment_distribution || {};
+                    
+                    globalStats = {
+                        positive: (distribution.positive || 0) + (distribution.POSITIVE || 0) + (distribution.joy || 0),
+                        negative: (distribution.negative || 0) + (distribution.NEGATIVE || 0) + (distribution.sadness || 0) + (distribution.disgust || 0),
+                        neutral: (distribution.neutral || 0) + (distribution.surprise || 0),
+                        total: stats.total_analyses || 0,
+                        emotions: distribution
+                    };
+                    
+                    console.log('Processed stats:', globalStats);
+                    updateUI();
+                    createCharts();
+                } else {
+                    console.error('Stats API failed:', statsResponse.status);
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Update UI with loaded data
+        function updateUI() {
+            console.log('Updating UI with stats:', globalStats);
+            
+            document.getElementById('positive-count').textContent = globalStats.positive;
+            document.getElementById('negative-count').textContent = globalStats.negative;
+            document.getElementById('neutral-count').textContent = globalStats.neutral;
+            document.getElementById('total-count').textContent = globalStats.total;
+            document.getElementById('header-total').textContent = globalStats.total;
+            document.getElementById('header-uptime').textContent = 'Online';
+        }
+
+        // Create all charts
+        async function createCharts() {
+            console.log('Creating charts...');
+            createSentimentPieChart();
+            createEmotionChart();
+            await createProductChart();
+        }
+
+        // Create sentiment pie chart
+        function createSentimentPieChart() {
+            const data = [{
+                values: [globalStats.positive, globalStats.negative, globalStats.neutral],
+                labels: ['Positive', 'Negative', 'Neutral'],
+                type: 'pie',
+                marker: {
+                    colors: ['#10b981', '#ef4444', '#64748b']
+                },
+                textinfo: 'label+percent',
+                textposition: 'outside'
+            }];
+
+            const layout = {
+                margin: { t: 20, r: 20, b: 20, l: 20 },
+                showlegend: false
+            };
+
+            Plotly.newPlot('sentiment-pie-chart', data, layout, {responsive: true});
+        }
+
+        // Create emotion chart
+        function createEmotionChart() {
+            const emotions = globalStats.emotions || {};
+            const emotionLabels = Object.keys(emotions).filter(key => emotions[key] > 0);
+            const emotionValues = emotionLabels.map(key => emotions[key]);
+            
+            if (emotionLabels.length === 0) {
+                document.getElementById('emotion-chart').innerHTML = 
+                    '<div style="text-align: center; padding: 2rem; color: var(--text-secondary);">No emotion data available</div>';
+                return;
+            }
+
+            const emotionColors = {
+                joy: '#10b981', positive: '#22c55e', POSITIVE: '#22c55e',
+                negative: '#ef4444', NEGATIVE: '#ef4444', sadness: '#f59e0b', disgust: '#dc2626',
+                neutral: '#64748b', surprise: '#8b5cf6'
+            };
+
+            const data = [{
+                values: emotionValues,
+                labels: emotionLabels.map(label => label.charAt(0).toUpperCase() + label.slice(1)),
+                type: 'pie',
+                marker: {
+                    colors: emotionLabels.map(label => emotionColors[label] || '#64748b')
+                },
+                textinfo: 'label+percent',
+                textposition: 'outside'
+            }];
+
+            const layout = {
+                margin: { t: 20, r: 20, b: 20, l: 20 },
+                showlegend: true,
+                legend: { orientation: 'h', y: -0.2 }
+            };
+
+            Plotly.newPlot('emotion-chart', data, layout, {responsive: true});
+        }
+
+        // Create product chart
+        async function createProductChart() {
+            try {
+                const response = await fetch(`${API_BASE}/products?limit=10`);
+                if (!response.ok) {
+                    document.getElementById('product-chart').innerHTML = 
+                        '<div style="text-align: center; padding: 2rem; color: var(--text-secondary);">No product data available</div>';
+                    return;
+                }
+                
+                const data = await response.json();
+                const products = data.products || [];
+                
+                if (products.length === 0) {
+                    document.getElementById('product-chart').innerHTML = 
+                        '<div style="text-align: center; padding: 2rem; color: var(--text-secondary);">No products found. Import data to see product analysis.</div>';
+                    return;
+                }
+
+                const productNames = products.map(p => p.product_id.length > 15 ? p.product_id.substring(0, 15) + '...' : p.product_id);
+                const positiveData = products.map(p => p.positive || 0);
+                const negativeData = products.map(p => p.negative || 0);
+                const neutralData = products.map(p => p.neutral || 0);
+
+                const trace1 = {
+                    x: productNames,
+                    y: positiveData,
+                    name: 'Positive',
+                    type: 'bar',
+                    marker: { color: '#10b981' }
+                };
+
+                const trace2 = {
+                    x: productNames,
+                    y: negativeData,
+                    name: 'Negative',
+                    type: 'bar',
+                    marker: { color: '#ef4444' }
+                };
+
+                const trace3 = {
+                    x: productNames,
+                    y: neutralData,
+                    name: 'Neutral',
+                    type: 'bar',
+                    marker: { color: '#64748b' }
+                };
+
+                const layout = {
+                    xaxis: { 
+                        title: 'Products',
+                        tickangle: -45,
+                        automargin: true
+                    },
+                    yaxis: { title: 'Number of Reviews' },
+                    barmode: 'group',
+                    margin: { t: 20, r: 20, b: 120, l: 60 }
+                };
+
+                Plotly.newPlot('product-chart', [trace1, trace2, trace3], layout, {responsive: true});
+                
+            } catch (error) {
+                console.error('Error creating product chart:', error);
+                document.getElementById('product-chart').innerHTML = 
+                    '<div style="text-align: center; padding: 2rem; color: var(--text-secondary);">Error loading product data</div>';
+            }
+        }
+
+        // Text analysis
+        document.getElementById('analysis-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const text = document.getElementById('analysis-text').value;
+            const product = document.getElementById('analysis-product').value;
+            
+            if (!text.trim()) return;
+
+            const resultDiv = document.getElementById('analysis-result');
+            resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div> Analyzing...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/analyze`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text,
+                        product: product || null
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    displayAnalysisResult(result);
+                    
+                    // Refresh dashboard data
+                    setTimeout(loadData, 1000);
+                } else {
+                    resultDiv.innerHTML = '<p style="color: var(--danger-color);">Analysis failed. Please try again.</p>';
+                }
+            } catch (error) {
+                console.error('Analysis failed:', error);
+                resultDiv.innerHTML = '<p style="color: var(--danger-color);">Error connecting to service.</p>';
+            }
+        });
+
+        // Display analysis result with emotions
+        function displayAnalysisResult(result) {
+            const resultDiv = document.getElementById('analysis-result');
+            
+            const emotionColors = {
+                'joy': { color: '#10b981', icon: 'fas fa-smile' },
+                'positive': { color: '#22c55e', icon: 'fas fa-thumbs-up' },
+                'POSITIVE': { color: '#22c55e', icon: 'fas fa-thumbs-up' },
+                'negative': { color: '#ef4444', icon: 'fas fa-thumbs-down' },
+                'NEGATIVE': { color: '#ef4444', icon: 'fas fa-thumbs-down' },
+                'sadness': { color: '#f59e0b', icon: 'fas fa-sad-tear' },
+                'disgust': { color: '#dc2626', icon: 'fas fa-grimace' },
+                'neutral': { color: '#64748b', icon: 'fas fa-meh' },
+                'surprise': { color: '#8b5cf6', icon: 'fas fa-surprise' }
+            };
+            
+            const emotion = emotionColors[result.sentiment] || emotionColors['neutral'];
+            const confidencePercent = (result.confidence * 100).toFixed(1);
+            
+            let html = `
+                <div class="result-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <span class="sentiment-badge" style="background-color: ${emotion.color}; color: white;">
+                            <i class="${emotion.icon}" style="margin-right: 0.25rem;"></i>
+                            ${result.sentiment.toUpperCase()}
+                        </span>
+                        <span>${confidencePercent}% confidence</span>
+                    </div>
+                    <p><strong>Text:</strong> "${result.text}"</p>
+                    ${result.product ? `<p><strong>Product:</strong> ${result.product}</p>` : ''}
+            `;
+            
+            // Show all emotion scores if available
+            if (result.all_scores && Object.keys(result.all_scores).length > 1) {
+                html += '<div style="margin-top: 1rem;"><strong>All Emotion Scores:</strong><div style="margin-top: 0.5rem;">';
+                Object.entries(result.all_scores).forEach(([emotion, score]) => {
+                    const emotionInfo = emotionColors[emotion] || emotionColors['neutral'];
+                    const scorePercent = (score * 100).toFixed(1);
+                    html += `
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem; padding: 0.25rem; background: rgba(0,0,0,0.02); border-radius: 0.25rem;">
+                            <span><i class="${emotionInfo.icon}" style="color: ${emotionInfo.color}; margin-right: 0.5rem;"></i>${emotion}</span>
+                            <span style="font-weight: 600;">${scorePercent}%</span>
+                        </div>
+                    `;
+                });
+                html += '</div></div>';
+            }
+            
+            html += '</div>';
+            resultDiv.innerHTML = html;
+        }
+
+        // CSV Processing
+        async function processCSV() {
+            const fileInput = document.getElementById('csv-file');
+            const resultDiv = document.getElementById('import-result');
+            const importBtn = document.getElementById('import-btn');
+            
+            if (!fileInput.files[0]) {
+                alert('Please select a CSV file first.');
+                return;
+            }
+
+            importBtn.innerHTML = '<div class="spinner"></div> Processing...';
+            importBtn.disabled = true;
+            resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div> Processing CSV file...</div>';
+
+            try {
+                const file = fileInput.files[0];
+                const text = await file.text();
+                const lines = text.split('\n');
+                const headers = lines[0].split(',');
+                
+                const reviews = [];
+                for (let i = 1; i < lines.length && i <= 20; i++) { // Process first 20 rows
+                    if (lines[i].trim()) {
+                        const values = lines[i].split(',');
+                        if (values.length >= headers.length) {
+                            reviews.push({
+                                Id: values[0] || '',
+                                ProductId: values[1] || '',
+                                Text: values[9] || '', // Text column
+                                Score: parseFloat(values[6]) || 3,
+                                Time: values[7] || Math.floor(Date.now() / 1000).toString(),
+                                Summary: values[8] || '',
+                                HelpfulnessNumerator: parseInt(values[4]) || 0,
+                                HelpfulnessDenominator: parseInt(values[5]) || 0
+                            });
+                        }
+                    }
+                }
+
+                console.log('Prepared reviews:', reviews.length);
+
+                // Send for bulk import
+                const bulkData = {
+                    reviews: reviews,
+                    group_by_product: true,
+                    include_top_comments: true,
+                    top_comments_per_category: 5
+                };
+
+                const response = await fetch(`${API_BASE}/analyze/bulk-import`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bulkData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="result-card">
+                            <h4 style="color: var(--success-color);">Import Successful!</h4>
+                            <p>Processed ${result.processed_reviews} reviews in ${result.processing_time_seconds.toFixed(2)} seconds</p>
+                            <p>Products analyzed: ${Object.keys(result.products || {}).length}</p>
+                        </div>
+                    `;
+                    
+                    // Refresh dashboard
+                    setTimeout(loadData, 2000);
+                    
+                } else {
+                    resultDiv.innerHTML = '<p style="color: var(--danger-color);">Import failed. Please try again.</p>';
+                }
+
+            } catch (error) {
+                console.error('CSV processing failed:', error);
+                resultDiv.innerHTML = '<p style="color: var(--danger-color);">Error processing CSV file.</p>';
+            } finally {
+                importBtn.innerHTML = '<i class="fas fa-upload"></i> Import & Analyze';
+                importBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

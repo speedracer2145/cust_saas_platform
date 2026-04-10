@@ -1,0 +1,63 @@
+[
+  {
+    "Id": "1",
+    "ProductId": "B001234567",
+    "UserId": "A1B2C3D4E5F6G7",
+    "ProfileName": "John Doe",
+    "HelpfulnessNumerator": 5,
+    "HelpfulnessDenominator": 5,
+    "Score": 5.0,
+    "Time": "1346976000",
+    "Summary": "Great product!",
+    "Text": "I absolutely love this product! The quality is exceptional and it works perfectly. Highly recommend!"
+  },
+  {
+    "Id": "2",
+    "ProductId": "B001234567",
+    "UserId": "A2B3C4D5E6F7G8",
+    "ProfileName": "Jane Smith",
+    "HelpfulnessNumerator": 3,
+    "HelpfulnessDenominator": 4,
+    "Score": 1.0,
+    "Time": "1347062400",
+    "Summary": "Terrible quality",
+    "Text": "This product broke after just one week. Very disappointed with the quality. Would not recommend."
+  },
+  {
+    "Id": "3",
+    "ProductId": "B007654321",
+    "UserId": "A3B4C5D6E7F8G9",
+    "ProfileName": "Bob Johnson",
+    "HelpfulnessNumerator": 2,
+    "HelpfulnessDenominator": 3,
+    "Score": 3.0,
+    "Time": "1347148800",
+    "Summary": "Okay product",
+    "Text": "The product is okay, does what it's supposed to do but nothing special. Average quality."
+  },
+  {
+    "Id": "4",
+    "ProductId": "B007654321",
+    "UserId": "A4B5C6D7E8F9G0",
+    "ProfileName": "Alice Brown",
+    "HelpfulnessNumerator": 4,
+    "HelpfulnessDenominator": 4,
+    "Score": 4.0,
+    "Time": "1347235200",
+    "Summary": "Good value",
+    "Text": "Good product overall, excellent value for money. Delivery was fast and packaging was good."
+  },
+  {
+    "Id": "5",
+    "ProductId": "B001234567",
+    "UserId": "A5B6C7D8E9F0G1",
+    "ProfileName": "Charlie Wilson",
+    "HelpfulnessNumerator": 1,
+    "HelpfulnessDenominator": 2,
+    "Score": 2.0,
+    "Time": "1347321600",
+    "Summary": "Not as expected",
+    "Text": "The product doesn't work as advertised. Poor quality and customer service was unhelpful."
+  }
+]
+

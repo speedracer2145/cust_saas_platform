@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoBERTa Sentiment Analysis - Complete Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #06b6d4;
+            --light-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--light-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .stat-icon.positive { background: #dcfce7; color: var(--success-color); }
+        .stat-icon.negative { background: #fef2f2; color: var(--danger-color); }
+        .stat-icon.neutral { background: #f0f9ff; color: var(--info-color); }
+        .stat-icon.total { background: #f3f4f6; color: var(--text-primary); }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: var(--text-secondary);
+        }
+
+        .error {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-brain"></i> RoBERTa Sentiment Analysis Dashboard</h1>
+        <div class="header-stats">
+            <span><i class="fas fa-chart-line"></i> Total Analyzed: <span id="header-total">0</span></span>
+            <span><i class="fas fa-calendar"></i> Last Updated: <span id="last-updated">Loading...</span></span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon positive">
+                    <i class="fas fa-smile"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="positive-count">0</div>
+                    <div class="stat-label">Positive Reviews</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon negative">
+                    <i class="fas fa-frown"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="negative-count">0</div>
+                    <div class="stat-label">Negative Reviews</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon neutral">
+                    <i class="fas fa-meh"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="neutral-count">0</div>
+                    <div class="stat-label">Neutral Reviews</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon total">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="total-count">0</div>
+                    <div class="stat-label">Total Analyzed</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">
+                    <i class="fas fa-chart-line"></i>
+                    Sentiment Trends Over Time
+                </div>
+                <div class="chart-container">
+                    <canvas id="trend-chart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">
+                    <i class="fas fa-chart-pie"></i>
+                    Sentiment Distribution
+                </div>
+                <div class="chart-container">
+                    <canvas id="pie-chart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">
+                    <i class="fas fa-chart-bar"></i>
+                    Top Products by Sentiment
+                </div>
+                <div class="chart-container">
+                    <canvas id="product-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        let globalStats = { positive: 0, negative: 0, neutral: 0, total: 0 };
+        let charts = {};
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('Dashboard initializing...');
+            await loadData();
+        });
+
+        // Load all data
+        async function loadData() {
+            try {
+                console.log('Loading statistics...');
+                
+                // Load statistics
+                const statsResponse = await fetch(`${API_BASE}/sentiment/statistics`);
+                if (statsResponse.ok) {
+                    const stats = await statsResponse.json();
+                    console.log('Raw stats:', stats);
+                    
+                    const distribution = stats.sentiment_distribution || {};
+                    globalStats = {
+                        positive: distribution.positive || 0,
+                        negative: distribution.negative || 0,
+                        neutral: distribution.neutral || 0,
+                        total: stats.total_analyses || 0
+                    };
+                    
+                    console.log('Processed stats:', globalStats);
+                    updateUI();
+                    await createCharts();
+                } else {
+                    console.error('Stats API failed:', statsResponse.status);
+                    showError('Failed to load statistics');
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showError('Error loading data: ' + error.message);
+            }
+        }
+
+        // Update UI elements
+        function updateUI() {
+            console.log('Updating UI with stats:', globalStats);
+            
+            // Update stat cards
+            document.getElementById('positive-count').textContent = globalStats.positive.toLocaleString();
+            document.getElementById('negative-count').textContent = globalStats.negative.toLocaleString();
+            document.getElementById('neutral-count').textContent = globalStats.neutral.toLocaleString();
+            document.getElementById('total-count').textContent = globalStats.total.toLocaleString();
+            
+            // Update header
+            document.getElementById('header-total').textContent = globalStats.total.toLocaleString();
+            document.getElementById('last-updated').textContent = new Date().toLocaleString();
+        }
+
+        // Create all charts
+        async function createCharts() {
+            console.log('Creating charts...');
+            
+            try {
+                await Promise.all([
+                    createPieChart(),
+                    createTrendChart(),
+                    createProductChart()
+                ]);
+                console.log('All charts created successfully');
+            } catch (error) {
+                console.error('Error creating charts:', error);
+            }
+        }
+
+        // Create pie chart
+        async function createPieChart() {
+            const ctx = document.getElementById('pie-chart').getContext('2d');
+            
+            if (charts.pie) charts.pie.destroy();
+            
+            charts.pie = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Positive', 'Negative', 'Neutral'],
+                    datasets: [{
+                        data: [globalStats.positive, globalStats.negative, globalStats.neutral],
+                        backgroundColor: ['#10b981', '#ef4444', '#06b6d4'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create trend chart
+        async function createTrendChart() {
+            try {
+                const endTime = new Date().toISOString();
+                const startTime = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+                const response = await fetch(`${API_BASE}/sentiment/timeseries?group_by=day&limit=30&start_time=${startTime}&end_time=${endTime}`);
+                
+                if (!response.ok) {
+                    throw new Error('Timeseries API failed');
+                }
+                
+                const data = await response.json();
+                console.log('Timeseries data:', data.length, 'points');
+                
+                // Process data by date
+                const dateMap = {};
+                data.forEach(item => {
+                    const date = item.time.split('T')[0];
+                    if (!dateMap[date]) {
+                        dateMap[date] = { positive: 0, negative: 0, neutral: 0 };
+                    }
+                    dateMap[date].positive += item.positive || 0;
+                    dateMap[date].negative += item.negative || 0;
+                    dateMap[date].neutral += item.neutral || 0;
+                });
+                
+                const dates = Object.keys(dateMap).sort();
+                const positiveData = dates.map(date => dateMap[date].positive);
+                const negativeData = dates.map(date => dateMap[date].negative);
+                const neutralData = dates.map(date => dateMap[date].neutral);
+                
+                const ctx = document.getElementById('trend-chart').getContext('2d');
+                
+                if (charts.trend) charts.trend.destroy();
+                
+                charts.trend = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dates,
+                        datasets: [
+                            {
+                                label: 'Positive',
+                                data: positiveData,
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Negative',
+                                data: negativeData,
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Neutral',
+                                data: neutralData,
+                                borderColor: '#06b6d4',
+                                backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error creating trend chart:', error);
+            }
+        }
+
+        // Create product chart
+        async function createProductChart() {
+            try {
+                const response = await fetch(`${API_BASE}/products?limit=10`);
+                if (!response.ok) {
+                    throw new Error('Products API failed');
+                }
+                
+                const products = await response.json();
+                console.log('Products data:', products.length, 'products');
+                
+                const labels = products.map(p => p.product_id || 'Unknown');
+                const positiveData = products.map(p => p.positive_count || 0);
+                const negativeData = products.map(p => p.negative_count || 0);
+                const neutralData = products.map(p => p.neutral_count || 0);
+                
+                const ctx = document.getElementById('product-chart').getContext('2d');
+                
+                if (charts.product) charts.product.destroy();
+                
+                charts.product = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Positive',
+                                data: positiveData,
+                                backgroundColor: '#10b981'
+                            },
+                            {
+                                label: 'Negative',
+                                data: negativeData,
+                                backgroundColor: '#ef4444'
+                            },
+                            {
+                                label: 'Neutral',
+                                data: neutralData,
+                                backgroundColor: '#06b6d4'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: true
+                            },
+                            y: {
+                                stacked: true,
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error creating product chart:', error);
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            const container = document.querySelector('.container');
+            container.innerHTML = `<div class="error"><i class="fas fa-exclamation-triangle"></i> ${message}</div>`;
+        }
+    </script>
+</body>
+</html>

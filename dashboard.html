@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Sentiment Analysis Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+        }
+
+        .filters {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s;
+            align-self: end;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 36px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .stat-card.positive h3 { color: #28a745; }
+        .stat-card.negative h3 { color: #dc3545; }
+        .stat-card.neutral h3 { color: #17a2b8; }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        #timeSeriesChart,
+        #distributionChart {
+            height: 400px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #c33;
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Product Sentiment Analysis Dashboard</h1>
+            <p>Real-time sentiment analysis visualization by product</p>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="productSelect">Product:</label>
+                <select id="productSelect">
+                    <option value="">All Products</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate">
+            </div>
+
+            <div class="filter-group">
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate">
+            </div>
+
+            <div class="filter-group">
+                <label for="groupBy">Group By:</label>
+                <select id="groupBy">
+                    <option value="hour">Hour</option>
+                    <option value="day" selected>Day</option>
+                    <option value="week">Week</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="chartType">Chart Type:</label>
+                <select id="chartType">
+                    <option value="line" selected>Line Chart</option>
+                    <option value="bar">Bar Chart</option>
+                    <option value="area">Area Chart</option>
+                </select>
+            </div>
+
+            <button class="btn" onclick="loadData()">🔄 Update Dashboard</button>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <h3 id="totalFeedback">-</h3>
+                <p>Total Feedback</p>
+            </div>
+            <div class="stat-card positive">
+                <h3 id="positiveCount">-</h3>
+                <p>Positive Sentiment</p>
+            </div>
+            <div class="stat-card negative">
+                <h3 id="negativeCount">-</h3>
+                <p>Negative Sentiment</p>
+            </div>
+            <div class="stat-card neutral">
+                <h3 id="neutralCount">-</h3>
+                <p>Neutral Sentiment</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="avgConfidence">-</h3>
+                <p>Avg Confidence</p>
+            </div>
+        </div>
+
+        <div class="charts-container">
+            <div class="chart-card">
+                <h2>📈 Sentiment Time Series</h2>
+                <div id="timeSeriesChart" class="loading">Loading chart data...</div>
+            </div>
+
+            <div class="chart-card">
+                <h2>🥧 Sentiment Distribution</h2>
+                <div id="distributionChart" class="loading">Loading distribution data...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000';
+        
+        // Set default dates (last 30 days)
+        function setDefaultDates() {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30);
+            
+            document.getElementById('endDate').valueAsDate = endDate;
+            document.getElementById('startDate').valueAsDate = startDate;
+        }
+
+        // Load available products
+        async function loadProducts() {
+            try {
+                // For now, use a predefined list or fetch from API
+                // You can extend this to call an API endpoint that lists all products
+                const products = ['ProductA', 'ProductB', 'ProductC'];
+                const select = document.getElementById('productSelect');
+                
+                // Add products to dropdown
+                products.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product;
+                    option.textContent = product;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        // Load time series data
+        async function loadTimeSeries(product, startDate, endDate, groupBy, chartType) {
+            try {
+                const url = new URL(`${API_BASE_URL}/api/viz/sentiment-timeseries`);
+                if (product) url.searchParams.append('product', product);
+                if (startDate) url.searchParams.append('start_date', startDate);
+                if (endDate) url.searchParams.append('end_date', endDate);
+                url.searchParams.append('group_by', groupBy);
+                url.searchParams.append('chart_type', chartType);
+
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.chart_config && data.chart_config.data) {
+                    Plotly.newPlot('timeSeriesChart', data.chart_config.data, data.chart_config.layout);
+                } else {
+                    document.getElementById('timeSeriesChart').innerHTML = 
+                        '<div class="error">No data available for the selected filters</div>';
+                }
+            } catch (error) {
+                console.error('Error loading time series:', error);
+                document.getElementById('timeSeriesChart').innerHTML = 
+                    `<div class="error">Error loading chart: ${error.message}</div>`;
+            }
+        }
+
+        // Load summary statistics
+        async function loadSummary(product, startDate, endDate) {
+            try {
+                const url = new URL(`${API_BASE_URL}/api/viz/sentiment-summary`);
+                if (product) url.searchParams.append('product', product);
+                if (startDate) url.searchParams.append('start_date', startDate);
+                if (endDate) url.searchParams.append('end_date', endDate);
+
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.summary) {
+                    const summary = data.summary;
+                    
+                    document.getElementById('totalFeedback').textContent = summary.total_feedback || 0;
+                    document.getElementById('positiveCount').textContent = 
+                        `${summary.positive_count || 0} (${summary.positive_percentage || 0}%)`;
+                    document.getElementById('negativeCount').textContent = 
+                        `${summary.negative_count || 0} (${summary.negative_percentage || 0}%)`;
+                    document.getElementById('neutralCount').textContent = 
+                        `${summary.neutral_count || 0} (${summary.neutral_percentage || 0}%)`;
+                    document.getElementById('avgConfidence').textContent = 
+                        (summary.average_confidence || 0).toFixed(3);
+
+                    // Create distribution chart
+                    const pieData = [{
+                        values: [
+                            summary.positive_count || 0,
+                            summary.negative_count || 0,
+                            summary.neutral_count || 0
+                        ],
+                        labels: ['Positive', 'Negative', 'Neutral'],
+                        type: 'pie',
+                        marker: {
+                            colors: ['#28a745', '#dc3545', '#17a2b8']
+                        }
+                    }];
+
+                    const pieLayout = {
+                        title: 'Sentiment Distribution',
+                        height: 400,
+                        showlegend: true
+                    };
+
+                    Plotly.newPlot('distributionChart', pieData, pieLayout);
+                } else {
+                    document.getElementById('distributionChart').innerHTML = 
+                        '<div class="error">No summary data available</div>';
+                }
+            } catch (error) {
+                console.error('Error loading summary:', error);
+                document.getElementById('distributionChart').innerHTML = 
+                    `<div class="error">Error loading summary: ${error.message}</div>`;
+            }
+        }
+
+        // Main function to load all data
+        async function loadData() {
+            const product = document.getElementById('productSelect').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const groupBy = document.getElementById('groupBy').value;
+            const chartType = document.getElementById('chartType').value;
+
+            // Show loading state
+            document.getElementById('timeSeriesChart').innerHTML = '<div class="loading">Loading chart...</div>';
+            document.getElementById('distributionChart').innerHTML = '<div class="loading">Loading distribution...</div>';
+
+            // Load data in parallel
+            await Promise.all([
+                loadTimeSeries(product, startDate, endDate, groupBy, chartType),
+                loadSummary(product, startDate, endDate)
+            ]);
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            setDefaultDates();
+            loadProducts();
+            loadData();
+        });
+
+        // Auto-refresh every 5 minutes (optional)
+        // setInterval(loadData, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
+

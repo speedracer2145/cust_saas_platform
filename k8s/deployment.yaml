@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roberta-sentiment-service
+  namespace: roberta-sentiment
+  labels:
+    app: roberta-sentiment-service
+    version: v1.0.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: roberta-sentiment-service
+  template:
+    metadata:
+      labels:
+        app: roberta-sentiment-service
+        version: v1.0.0
+    spec:
+      containers:
+      - name: sentiment-service
+        image: roberta-sentiment-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        env:
+        - name: MODEL_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: roberta-sentiment-config
+              key: MODEL_NAME
+        - name: HOST
+          valueFrom:
+            configMapKeyRef:
+              name: roberta-sentiment-config
+              key: HOST
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: roberta-sentiment-config
+              key: PORT
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: roberta-sentiment-config
+              key: LOG_LEVEL
+        - name: BATCH_SIZE
+          valueFrom:
+            configMapKeyRef:
+              name: roberta-sentiment-config
+              key: BATCH_SIZE
+        - name: MAX_BATCH_SIZE
+          valueFrom:
+            configMapKeyRef:
+              name: roberta-sentiment-config
+              key: MAX_BATCH_SIZE
+        - name: USE_CUDA
+          valueFrom:
+            configMapKeyRef:
+              name: roberta-sentiment-config
+              key: USE_CUDA
+        - name: TORCH_DTYPE
+          valueFrom:
+            configMapKeyRef:
+              name: roberta-sentiment-config
+              key: TORCH_DTYPE
+        - name: DATABASE_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: roberta-sentiment-config
+              key: DATABASE_PATH
+        - name: CORS_ORIGINS
+          valueFrom:
+            configMapKeyRef:
+              name: roberta-sentiment-config
+              key: CORS_ORIGINS
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+            nvidia.com/gpu: 1  # Request GPU if available
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+            nvidia.com/gpu: 1  # Limit GPU usage
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/data
+        - name: logs-volume
+          mountPath: /app/logs
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30  # Allow up to 5 minutes for model loading
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: roberta-sentiment-data-pvc
+      - name: logs-volume
+        emptyDir: {}
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30

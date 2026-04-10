@@ -1,0 +1,152 @@
+{
+  "reviews": [
+    {
+      "Id": "1",
+      "ProductId": "B001234567",
+      "UserId": "A1B2C3D4E5F6",
+      "ProfileName": "John Doe",
+      "HelpfulnessNumerator": 10,
+      "HelpfulnessDenominator": 10,
+      "Score": 5.0,
+      "Time": "1346976000",
+      "Summary": "Excellent product",
+      "Text": "I absolutely love this product! The quality is exceptional and it works perfectly. The build quality is outstanding and the design is modern. Highly recommend to everyone looking for a reliable solution. Fast shipping and great customer service too!"
+    },
+    {
+      "Id": "2",
+      "ProductId": "B001234567",
+      "UserId": "A2B3C4D5E6F7",
+      "ProfileName": "Jane Smith",
+      "HelpfulnessNumerator": 8,
+      "HelpfulnessDenominator": 9,
+      "Score": 4.0,
+      "Time": "1347062400",
+      "Summary": "Good value",
+      "Text": "Great value for money. Works as expected and delivery was fast. The product meets my needs and I'm satisfied with the purchase. Would buy again."
+    },
+    {
+      "Id": "3",
+      "ProductId": "B001234567",
+      "UserId": "A3B4C5D6E7F8",
+      "ProfileName": "Bob Johnson",
+      "HelpfulnessNumerator": 5,
+      "HelpfulnessDenominator": 6,
+      "Score": 1.0,
+      "Time": "1347148800",
+      "Summary": "Poor quality",
+      "Text": "This product broke after just one week. Very disappointed with the quality. The material feels cheap and it doesn't work as advertised. Waste of money."
+    },
+    {
+      "Id": "4",
+      "ProductId": "B001234567",
+      "UserId": "A4B5C6D7E8F9",
+      "ProfileName": "Alice Williams",
+      "HelpfulnessNumerator": 3,
+      "HelpfulnessDenominator": 5,
+      "Score": 3.0,
+      "Time": "1347235200",
+      "Summary": "Average",
+      "Text": "The product is okay, does what it's supposed to do but nothing special. Average quality. It works but I expected more for the price."
+    },
+    {
+      "Id": "5",
+      "ProductId": "B001234567",
+      "UserId": "A5B6C7D8E9F0",
+      "ProfileName": "Charlie Brown",
+      "HelpfulnessNumerator": 12,
+      "HelpfulnessDenominator": 12,
+      "Score": 5.0,
+      "Time": "1347321600",
+      "Summary": "Amazing",
+      "Text": "Amazing quality! This exceeded all my expectations. The product is well-designed, durable, and performs excellently. Will definitely buy again and recommend to friends!"
+    },
+    {
+      "Id": "6",
+      "ProductId": "B007654321",
+      "UserId": "B1C2D3E4F5G6",
+      "ProfileName": "David Lee",
+      "HelpfulnessNumerator": 15,
+      "HelpfulnessDenominator": 15,
+      "Score": 5.0,
+      "Time": "1347408000",
+      "Summary": "Outstanding",
+      "Text": "Outstanding product! Fast shipping and great packaging. Very satisfied with the purchase. The quality is top-notch and it's exactly what I needed. Highly recommended!"
+    },
+    {
+      "Id": "7",
+      "ProductId": "B007654321",
+      "UserId": "B2C3D4E5F6G7",
+      "ProfileName": "Emma Davis",
+      "HelpfulnessNumerator": 7,
+      "HelpfulnessDenominator": 8,
+      "Score": 4.0,
+      "Time": "1347494400",
+      "Summary": "Good value",
+      "Text": "Good product overall, excellent value for money. Delivery was fast and the product works well. Satisfied with my purchase."
+    },
+    {
+      "Id": "8",
+      "ProductId": "B007654321",
+      "UserId": "B3C4D5E6F7G8",
+      "ProfileName": "Frank Miller",
+      "HelpfulnessNumerator": 4,
+      "HelpfulnessDenominator": 4,
+      "Score": 1.0,
+      "Time": "1347580800",
+      "Summary": "Terrible",
+      "Text": "Terrible experience. The product doesn't work as advertised. Poor quality and customer service was unhelpful. Would not recommend."
+    },
+    {
+      "Id": "9",
+      "ProductId": "B007654321",
+      "UserId": "B4C5D6E7F8G9",
+      "ProfileName": "Grace Wilson",
+      "HelpfulnessNumerator": 6,
+      "HelpfulnessDenominator": 7,
+      "Score": 2.0,
+      "Time": "1347667200",
+      "Summary": "Disappointing",
+      "Text": "Very disappointing. The product arrived damaged and doesn't function properly. Expected much better quality for the price. Not worth it."
+    },
+    {
+      "Id": "10",
+      "ProductId": "B009876543",
+      "UserId": "C1D2E3F4G5H6",
+      "ProfileName": "Henry Taylor",
+      "HelpfulnessNumerator": 9,
+      "HelpfulnessDenominator": 10,
+      "Score": 5.0,
+      "Time": "1347753600",
+      "Summary": "Perfect",
+      "Text": "Perfect product! Exactly what I was looking for. High quality, great design, and excellent performance. The best purchase I've made this year. Highly satisfied!"
+    },
+    {
+      "Id": "11",
+      "ProductId": "B009876543",
+      "UserId": "C2D3E4F5G6H7",
+      "ProfileName": "Ivy Martinez",
+      "HelpfulnessNumerator": 11,
+      "HelpfulnessDenominator": 11,
+      "Score": 5.0,
+      "Time": "1347840000",
+      "Summary": "Excellent",
+      "Text": "Excellent quality and fast delivery. The product works perfectly and exceeded my expectations. Great value for money. Will definitely purchase again!"
+    },
+    {
+      "Id": "12",
+      "ProductId": "B009876543",
+      "UserId": "C3D4E5F6G7H8",
+      "ProfileName": "Jack Anderson",
+      "HelpfulnessNumerator": 2,
+      "HelpfulnessDenominator": 3,
+      "Score": 2.0,
+      "Time": "1347926400",
+      "Summary": "Not good",
+      "Text": "Not good at all. The product is poorly made and stopped working after a few days. Very disappointed. Would not recommend to anyone."
+    }
+  ],
+  "group_by_product": true,
+  "include_top_comments": true,
+  "top_comments_per_category": 5
+}
+

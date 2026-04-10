@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: roberta-sentiment-preload-data
+  namespace: roberta-sentiment
+  labels:
+    app: roberta-sentiment-service
+    component: data-preload
+spec:
+  template:
+    metadata:
+      labels:
+        app: roberta-sentiment-service
+        component: data-preload
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: preload-data
+        image: roberta-sentiment-service:latest
+        imagePullPolicy: IfNotPresent
+        command: ["python3", "/app/preload_data.py"]
+        env:
+        - name: DATABASE_PATH
+          value: "/app/data/sentiment_results.db"
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/data
+        - name: example-data
+          mountPath: /app/example_data
+          readOnly: true
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: roberta-sentiment-data-pvc
+      - name: example-data
+        configMap:
+          name: roberta-sentiment-example-data
+
+

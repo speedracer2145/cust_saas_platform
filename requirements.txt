@@ -1,0 +1,48 @@
+# Core dependencies for RoBERTa Sentiment Analysis Service
+
+# FastAPI and web server
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic>=2.0.0
+
+# Hugging Face Transformers and PyTorch
+torch>=2.0.0
+transformers>=4.35.0
+tokenizers>=0.15.0
+accelerate>=0.24.0
+
+# Data processing and utilities
+numpy>=1.24.0
+pandas>=2.0.0
+python-multipart==0.0.6
+
+# Visualization
+plotly>=5.17.0
+kaleido>=0.2.1
+
+# Keyword extraction
+keybert>=0.8.0
+
+# Database
+# sqlite3  # Built-in with Python (no need to install)
+
+# Logging and monitoring
+python-json-logger==2.0.7
+
+# Development and testing (optional)
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2
+requests>=2.31.0
+
+# Kaggle dataset download
+kagglehub>=0.2.0
+
+# Optional: For better performance
+# torch-audio  # Uncomment if you need audio processing
+# torch-vision  # Uncomment if you need vision processing
+
+# Optional: For production deployment
+# gunicorn==21.2.0  # Alternative to uvicorn for production
+# redis==5.0.1  # For caching if needed
+# psycopg2-binary==2.9.9  # For PostgreSQL if you want to replace SQLite

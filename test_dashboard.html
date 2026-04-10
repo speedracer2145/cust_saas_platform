@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .stat-card { 
+            display: inline-block; 
+            border: 1px solid #ccc; 
+            padding: 20px; 
+            margin: 10px; 
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value { font-size: 2em; font-weight: bold; color: #2563eb; }
+        .stat-label { margin-top: 10px; color: #666; }
+        .debug { background: #f0f0f0; padding: 15px; margin: 20px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Dashboard Debug Test</h1>
+    
+    <div class="debug">
+        <h3>Debug Console (check browser console for details)</h3>
+        <div id="debug-output">Loading...</div>
+    </div>
+    
+    <h2>Statistics Cards</h2>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" id="positive-count">0</div>
+            <div class="stat-label">Positive Reviews</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="negative-count">0</div>
+            <div class="stat-label">Negative Reviews</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="neutral-count">0</div>
+            <div class="stat-label">Neutral Reviews</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="total-count">0</div>
+            <div class="stat-label">Total Analyzed</div>
+        </div>
+    </div>
+
+    <script>
+        async function testDashboard() {
+            const API_BASE = 'http://localhost:8000';
+            const debugOutput = document.getElementById('debug-output');
+            
+            try {
+                debugOutput.innerHTML = 'Fetching statistics...';
+                
+                const statsResponse = await fetch(`${API_BASE}/sentiment/statistics`);
+                if (statsResponse.ok) {
+                    const stats = await statsResponse.json();
+                    console.log('Statistics:', stats);
+                    
+                    const distribution = stats.sentiment_distribution || {};
+                    
+                    // Update UI
+                    document.getElementById('positive-count').textContent = (distribution.positive || 0).toLocaleString();
+                    document.getElementById('negative-count').textContent = (distribution.negative || 0).toLocaleString();
+                    document.getElementById('neutral-count').textContent = (distribution.neutral || 0).toLocaleString();
+                    document.getElementById('total-count').textContent = (stats.total_analyses || 0).toLocaleString();
+                    
+                    debugOutput.innerHTML = `
+                        <strong>✅ Success!</strong><br>
+                        Total: ${stats.total_analyses}<br>
+                        Positive: ${distribution.positive}<br>
+                        Negative: ${distribution.negative}<br>
+                        Neutral: ${distribution.neutral}<br>
+                        First Analysis: ${stats.first_analysis}<br>
+                        Last Analysis: ${stats.last_analysis}
+                    `;
+                } else {
+                    debugOutput.innerHTML = `❌ API Error: ${statsResponse.status}`;
+                }
+            } catch (error) {
+                debugOutput.innerHTML = `❌ Error: ${error.message}`;
+                console.error('Error:', error);
+            }
+        }
+        
+        // Run test
+        testDashboard();
+    </script>
+</body>
+</html>

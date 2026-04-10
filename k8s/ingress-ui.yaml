@@ -1,0 +1,53 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: roberta-sentiment-ui-ingress
+  namespace: roberta-sentiment
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: roberta-sentiment.local  # Change to your domain
+    http:
+      paths:
+      # UI route
+      - path: /(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: roberta-sentiment-ui
+            port:
+              number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: roberta-sentiment-api-ingress
+  namespace: roberta-sentiment
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type, Authorization"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: api.roberta-sentiment.local  # Change to your domain
+    http:
+      paths:
+      # API route
+      - path: /(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: roberta-sentiment-service
+            port:
+              number: 8000
+
+

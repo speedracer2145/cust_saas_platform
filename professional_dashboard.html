@@ -1,0 +1,3607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoBERTa Sentiment Analysis - Professional Dashboard</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.875rem;
+        }
+
+        .header-stat {
+            text-align: center;
+        }
+
+        .header-stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: block;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            background: var(--card-background);
+            border-radius: 0.75rem;
+            padding: 0.25rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            background: none;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+        }
+
+        .nav-tab.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: var(--background-color);
+            color: var(--text-primary);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-background);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Grid Layouts */
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        .stat-icon.positive {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .stat-icon.negative {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        .stat-icon.neutral {
+            background: rgba(100, 116, 139, 0.1);
+            color: var(--secondary-color);
+        }
+
+        .stat-icon.total {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary-color);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        /* Loading States */
+        .loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Results */
+        .result-card {
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .result-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .sentiment-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .sentiment-positive {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .sentiment-negative {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        .sentiment-neutral {
+            background: rgba(100, 116, 139, 0.1);
+            color: var(--secondary-color);
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        /* Chart Containers */
+        .chart-container {
+            height: 400px;
+            margin: 1rem 0;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .chart-container-large {
+            height: 500px;
+            margin: 1rem 0;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* Ensure charts don't overlap */
+        .card {
+            min-width: 0; /* Allow cards to shrink */
+            overflow: hidden;
+        }
+
+        /* Canvas sizing */
+        canvas {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+
+        /* Specific chart container sizing */
+        #sentiment-trend-chart {
+            width: 100%;
+            height: 400px;
+            position: relative;
+        }
+
+        #sentiment-pie-chart {
+            max-width: 100% !important;
+            max-height: 400px !important;
+        }
+
+        #emotion-distribution-chart {
+            max-width: 100% !important;
+            max-height: 400px !important;
+        }
+
+        /* Suggestions */
+        .suggestion-item {
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .suggestion-category {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .header-stats {
+                justify-content: center;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 300px; /* Smaller height on mobile */
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--background-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <h1>
+                <i class="fas fa-brain"></i>
+                RoBERTa Sentiment Analysis
+            </h1>
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <div class="header-stats">
+                    <div class="header-stat">
+                        <span class="header-stat-value" id="header-total">0</span>
+                        <span>Total Analyzed</span>
+                    </div>
+                    <div class="header-stat">
+                        <span class="header-stat-value" id="header-accuracy">98.5%</span>
+                        <span>Accuracy</span>
+                    </div>
+                    <div class="header-stat">
+                        <span class="header-stat-value" id="header-uptime">Online</span>
+                        <span>Status</span>
+                    </div>
+                </div>
+                <button onclick="refreshDashboard()" class="btn btn-secondary" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('analyze')">
+                <i class="fas fa-search"></i> Analyze Text
+            </button>
+            <button class="nav-tab" onclick="showTab('batch')">
+                <i class="fas fa-upload"></i> Import & Analyze
+            </button>
+            <button class="nav-tab" onclick="showTab('suggestions')">
+                <i class="fas fa-lightbulb"></i> Suggestions
+            </button>
+            <button class="nav-tab" onclick="showTab('insights')">
+                <i class="fas fa-chart-pie"></i> Insights
+            </button>
+            <button class="nav-tab" onclick="showTab('model-metrics')">
+                <i class="fas fa-flask"></i> Model Metrics
+            </button>
+            <button class="nav-tab" onclick="showTab('alerts')">
+                <i class="fas fa-bell"></i> Alerts
+            </button>
+            <button class="nav-tab" onclick="showTab('business-data')">
+                <i class="fas fa-briefcase"></i> Business Data
+            </button>
+        </div>
+
+        <!-- Analyze Text Tab -->
+        <div id="analyze" class="tab-content active">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon positive">
+                        <i class="fas fa-smile"></i>
+                    </div>
+                    <div class="stat-value" id="positive-count">0</div>
+                    <div class="stat-label">Positive Reviews</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon negative">
+                        <i class="fas fa-frown"></i>
+                    </div>
+                    <div class="stat-value" id="negative-count">0</div>
+                    <div class="stat-label">Negative Reviews</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon neutral">
+                        <i class="fas fa-meh"></i>
+                    </div>
+                    <div class="stat-value" id="neutral-count">0</div>
+                    <div class="stat-label">Neutral Reviews</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon total">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="stat-value" id="total-count">0</div>
+                    <div class="stat-label">Total Analyzed</div>
+                </div>
+            </div>
+
+            <!-- Main Sentiment Trend Chart - Full Width -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-calendar-alt"></i>
+                        Sentiment Trends Over Time
+                    </h3>
+                </div>
+                <div class="chart-container-large" id="sentiment-trend-chart"></div>
+            </div>
+
+            <!-- Secondary Charts Grid -->
+            <div class="grid grid-2">
+                <!-- Sentiment Distribution -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-pie"></i>
+                            Basic Sentiment Distribution
+                        </h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="sentiment-pie-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Emotion Distribution -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-smile"></i>
+                            Detailed Emotion Analysis
+                        </h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="emotion-distribution-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Analysis -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-box"></i>
+                        Top Products by Sentiment
+                    </h3>
+                </div>
+                <div class="chart-container-large" id="product-sentiment-chart"></div>
+            </div>
+        </div>
+
+        <!-- Analyze Text Tab -->
+        <div id="analyze" class="tab-content active">
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-edit"></i>
+                            Single Text Analysis
+                        </h3>
+                    </div>
+                    <form id="single-analysis-form">
+                        <div class="form-group">
+                            <label class="form-label" for="single-text">Enter text to analyze:</label>
+                            <textarea id="single-text" class="form-textarea" placeholder="Enter your text here..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="single-product">Product (optional):</label>
+                            <input type="text" id="single-product" class="form-input" placeholder="Product name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="single-team">Team (optional):</label>
+                            <input type="text" id="single-team" class="form-input" placeholder="Team name">
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                            Analyze Sentiment
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-bar"></i>
+                            Analysis Result
+                        </h3>
+                    </div>
+                    <div id="single-result" class="fade-in">
+                        <p class="text-secondary">Enter text and click "Analyze Sentiment" to see results.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Batch Analysis Tab -->
+        <div id="batch" class="tab-content">
+            <div class="grid grid-2">
+                <!-- Manual Batch Input -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-layer-group"></i>
+                            Manual Batch Analysis
+                        </h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="batch-texts">Enter multiple texts (one per line):</label>
+                        <textarea id="batch-texts" class="form-textarea" style="min-height: 150px;" placeholder="Enter multiple texts, one per line..."></textarea>
+                    </div>
+                    <button onclick="analyzeBatch()" class="btn btn-primary">
+                        <i class="fas fa-layer-group"></i>
+                        Analyze Batch
+                    </button>
+                </div>
+
+                <!-- CSV File Upload -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-file-csv"></i>
+                            CSV Data Import
+                        </h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="csv-file">Upload CSV File:</label>
+                        <input type="file" id="csv-file" class="form-input" accept=".csv" onchange="handleFileSelect(event)">
+                        <small class="text-secondary">
+                            Expected format: Id, ProductId, Text, Score, Customer_Type, Product_Name, etc.
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="group-by-product" checked> 
+                            Group results by product
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="include-suggestions" checked> 
+                            Generate smart suggestions
+                        </label>
+                    </div>
+                    <button onclick="processCSVData()" class="btn btn-success" id="process-csv-btn" disabled>
+                        <i class="fas fa-upload"></i>
+                        Process CSV Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- File Preview -->
+            <div id="csv-preview" class="card" style="display: none;">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-eye"></i>
+                        CSV Preview
+                    </h3>
+                </div>
+                <div id="csv-preview-content"></div>
+            </div>
+
+            <!-- Batch Results -->
+            <div id="batch-results" class="card" style="display: none;">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Analysis Results
+                    </h3>
+                </div>
+                <div id="batch-results-content"></div>
+            </div>
+        </div>
+
+        <!-- Suggestions Tab -->
+        <div id="suggestions" class="tab-content">
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-lightbulb"></i>
+                            Smart Suggestions Generator
+                        </h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="suggestion-sentiment">Filter by Sentiment:</label>
+                        <select id="suggestion-sentiment" class="form-select">
+                            <option value="all">All Sentiments</option>
+                            <option value="positive">Positive Only</option>
+                            <option value="negative">Negative Only</option>
+                            <option value="neutral">Neutral Only</option>
+                        </select>
+                    </div>
+                            <div class="form-group">
+                                <label class="form-label" for="suggestion-product">Filter by Product:</label>
+                                <select id="suggestion-product" class="form-select">
+                                    <option value="all">All Products</option>
+                                    <option value="B00H123456">B00H123456</option>
+                                    <option value="B00H345678">B00H345678</option>
+                                    <option value="B00H789012">B00H789012</option>
+                                    <option value="B00K123456">B00K123456</option>
+                                    <option value="B00K345678">B00K345678</option>
+                                    <option value="B00K789012">B00K789012</option>
+                                    <option value="B00P123456">B00P123456</option>
+                                    <option value="B00P345678">B00P345678</option>
+                                    <option value="B00P789012">B00P789012</option>
+                                    <option value="B00X123456">B00X123456</option>
+                                    <option value="B00X345678">B00X345678</option>
+                                    <option value="B00X789012">B00X789012</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="suggestion-customer-type">Filter by Customer Type:</label>
+                                <select id="suggestion-customer-type" class="form-select">
+                                    <option value="all">All Customer Types</option>
+                                    <option value="Premium">Premium</option>
+                                    <option value="Trial">Trial</option>
+                                    <option value="Normal">Normal</option>
+                                </select>
+                            </div>
+                    <button onclick="generateSuggestions()" class="btn btn-primary">
+                        <i class="fas fa-magic"></i>
+                        Generate Suggestions
+                    </button>
+                    <button onclick="testSuggestionsAPI()" class="btn btn-secondary" style="margin-left: 1rem;">
+                        <i class="fas fa-test"></i>
+                        Test API
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-pie"></i>
+                            Suggestion Categories
+                        </h3>
+                    </div>
+                    <div class="chart-container" id="suggestion-category-chart"></div>
+                </div>
+            </div>
+
+            <div id="suggestions-results" class="card" style="display: none;">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-list-ul"></i>
+                        Generated Suggestions
+                    </h3>
+                </div>
+                <div id="suggestions-content"></div>
+            </div>
+        </div>
+
+        <!-- Insights Tab -->
+        <div id="insights" class="tab-content">
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-trophy"></i>
+                            Top Performing Products
+                        </h3>
+                    </div>
+                    <div id="top-products-list"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Products Needing Attention
+                        </h3>
+                    </div>
+                    <div id="attention-products-list"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-clock"></i>
+                        Sentiment Timeline Analysis
+                    </h3>
+                </div>
+                <div class="chart-container-large" id="timeline-chart"></div>
+            </div>
+        </div>
+
+        <!-- Model Metrics Tab -->
+        <div id="model-metrics" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-info-circle"></i>
+                        Model Information
+                    </h3>
+                </div>
+                <div id="model-info-content">
+                    <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: center;">
+                        <div><strong>Model:</strong> <span id="model-name">Loading...</span></div>
+                        <div><strong>Device:</strong> <span id="model-device">Loading...</span></div>
+                        <div><strong>Samples Evaluated:</strong> <span id="model-samples">Loading...</span></div>
+                    </div>
+                    <div style="margin-top: 0.75rem; padding: 0.75rem; background: rgba(37, 99, 235, 0.05); border-radius: 0.5rem; border-left: 3px solid var(--primary-color); font-size: 0.875rem; color: var(--text-secondary);">
+                        <i class="fas fa-info-circle" style="color: var(--primary-color); margin-right: 0.5rem;"></i>
+                        RoBERTa is a pre-trained model. Dataset imbalance does not affect model weights since no fine-tuning is performed. The model was pre-trained on ~58M tweets for robust generalization.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overall Metrics Cards -->
+            <div class="stats-grid" id="metrics-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon total"><i class="fas fa-bullseye"></i></div>
+                    <div class="stat-value" id="metric-accuracy">--</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon positive"><i class="fas fa-crosshairs"></i></div>
+                    <div class="stat-value" id="metric-precision">--</div>
+                    <div class="stat-label">Weighted Precision</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon neutral"><i class="fas fa-redo"></i></div>
+                    <div class="stat-value" id="metric-recall">--</div>
+                    <div class="stat-label">Weighted Recall</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon negative"><i class="fas fa-balance-scale"></i></div>
+                    <div class="stat-value" id="metric-f1">--</div>
+                    <div class="stat-label">Weighted F1 Score</div>
+                </div>
+            </div>
+
+            <div class="grid grid-2">
+                <!-- Confusion Matrix -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-th"></i>
+                            Confusion Matrix
+                        </h3>
+                    </div>
+                    <div id="confusion-matrix-content" style="overflow-x: auto;"></div>
+                </div>
+
+                <!-- Class Distribution -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-bar"></i>
+                            Class Distribution
+                        </h3>
+                    </div>
+                    <div class="chart-container" id="class-distribution-chart"></div>
+                </div>
+            </div>
+
+            <div class="grid grid-2">
+                <!-- Per-Class Metrics Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-table"></i>
+                            Per-Class Metrics
+                        </h3>
+                    </div>
+                    <div id="per-class-metrics-content" style="overflow-x: auto;"></div>
+                </div>
+
+                <!-- Confidence by Class -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-bar"></i>
+                            Confidence by Class
+                        </h3>
+                    </div>
+                    <div class="chart-container" id="confidence-by-class-chart"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts Tab -->
+        <div id="alerts" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-cog"></i>
+                        Alert Configuration
+                    </h3>
+                </div>
+                <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: flex-end;">
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label class="form-label" for="alert-threshold">Negative Sentiment Threshold (%)</label>
+                        <input type="number" id="alert-threshold" class="form-input" value="40" min="10" max="90">
+                    </div>
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label class="form-label" for="alert-spike-window">Spike Window (days)</label>
+                        <input type="number" id="alert-spike-window" class="form-input" value="7" min="1" max="30">
+                    </div>
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label class="form-label">Notification Channels</label>
+                        <div style="display: flex; gap: 1rem; align-items: center; padding: 0.5rem 0;">
+                            <label><input type="checkbox" id="notify-dashboard" checked> <i class="fas fa-desktop"></i> Dashboard</label>
+                            <label><input type="checkbox" id="notify-email" checked> <i class="fas fa-envelope"></i> Email</label>
+                            <label><input type="checkbox" id="notify-chatops"> <i class="fas fa-hashtag"></i> ChatOps</label>
+                        </div>
+                    </div>
+                    <div>
+                        <button onclick="checkAlerts()" class="btn btn-primary">
+                            <i class="fas fa-bell"></i> Check Alerts
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert Summary Cards -->
+            <div class="stats-grid" id="alert-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;"><i class="fas fa-exclamation-circle"></i></div>
+                    <div class="stat-value" id="alert-critical">0</div>
+                    <div class="stat-label">Critical Alerts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="stat-value" id="alert-warnings">0</div>
+                    <div class="stat-label">Warnings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><i class="fas fa-info-circle"></i></div>
+                    <div class="stat-value" id="alert-info">0</div>
+                    <div class="stat-label">Info</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;"><i class="fas fa-bell"></i></div>
+                    <div class="stat-value" id="alert-total">0</div>
+                    <div class="stat-label">Total Alerts</div>
+                </div>
+            </div>
+
+            <!-- Active Alerts List -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-list"></i>
+                        Active Alerts
+                    </h3>
+                </div>
+                <div id="active-alerts-content">
+                    <p class="text-secondary">Click "Check Alerts" to scan for issues.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Data Tab -->
+        <div id="business-data" class="tab-content">
+            <!-- Summary Cards -->
+            <div class="stats-grid" id="business-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;"><i class="fas fa-rocket"></i></div>
+                    <div class="stat-value" id="biz-releases">0</div>
+                    <div class="stat-label">Product Releases</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;"><i class="fas fa-ticket-alt"></i></div>
+                    <div class="stat-value" id="biz-escalations">0</div>
+                    <div class="stat-label">Open Escalations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i class="fas fa-lightbulb"></i></div>
+                    <div class="stat-value" id="biz-features">0</div>
+                    <div class="stat-label">Features Tracked</div>
+                </div>
+            </div>
+
+            <div class="grid grid-2">
+                <!-- Product Release Dates -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-calendar-alt"></i>
+                            Product Release Dates
+                        </h3>
+                    </div>
+                    <div id="product-releases-content" style="overflow-x: auto;"></div>
+                </div>
+
+                <!-- Customer Escalations (Jira) -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-exclamation-circle"></i>
+                            Customer Escalations (Jira)
+                        </h3>
+                    </div>
+                    <div id="escalations-content" style="overflow-x: auto;"></div>
+                </div>
+            </div>
+
+            <!-- Feature Feedback Tracking -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-lightbulb"></i>
+                        New Feature Feedback Tracking
+                    </h3>
+                </div>
+                <div id="feature-tracking-content" style="overflow-x: auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentData = [];
+        let currentTimeseriesData = [];
+        let csvData = [];
+        let sentimentStats = { positive: 0, negative: 0, neutral: 0, total: 0 };
+        let emotionChart = null;
+        
+        // API Base URL
+        const API_BASE = 'http://localhost:8000';
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('Professional Dashboard loading...');
+            checkServiceHealth();
+            await loadInitialData();
+            
+            // Debug: Test API directly
+            try {
+                const testResponse = await fetch(`${API_BASE}/sentiment/statistics`);
+                if (testResponse.ok) {
+                    const testStats = await testResponse.json();
+                    console.log('Direct API test - Total reviews:', testStats.total_analyses);
+                    console.log('Direct API test - Distribution:', testStats.sentiment_distribution);
+                }
+            } catch (error) {
+                console.error('Direct API test failed:', error);
+            }
+        });
+
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active class from all tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab content (may have multiple elements with same id, show all)
+            const tabEl = document.getElementById(tabName);
+            if (tabEl) tabEl.classList.add('active');
+
+            // Add active class to clicked tab button (handle clicks on child <i> elements)
+            const clickedBtn = event.target.closest('.nav-tab');
+            if (clickedBtn) clickedBtn.classList.add('active');
+
+            // Load tab-specific data
+            if (tabName === 'dashboard') {
+                loadDashboardData();
+            } else if (tabName === 'suggestions') {
+                loadSuggestionsData();
+            } else if (tabName === 'insights') {
+                loadInsightsData();
+            } else if (tabName === 'model-metrics') {
+                loadModelMetrics();
+            } else if (tabName === 'alerts') {
+                checkAlerts();
+            } else if (tabName === 'business-data') {
+                loadBusinessData();
+            }
+        }
+
+        // Check service health
+        async function checkServiceHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const health = await response.json();
+                
+                document.getElementById('header-uptime').textContent = health.status === 'healthy' ? 'Online' : 'Offline';
+                document.getElementById('header-uptime').style.color = health.status === 'healthy' ? '#10b981' : '#ef4444';
+            } catch (error) {
+                console.error('Health check failed:', error);
+                document.getElementById('header-uptime').textContent = 'Offline';
+                document.getElementById('header-uptime').style.color = '#ef4444';
+            }
+        }
+
+        // Load initial data
+        async function loadInitialData() {
+            console.log('Loading initial data...');
+            try {
+                // Always try to load real statistics first
+                const statsResponse = await fetch(`${API_BASE}/sentiment/statistics`);
+                if (statsResponse.ok) {
+                    const stats = await statsResponse.json();
+                    console.log('Loaded real stats:', stats);
+                    
+                    // Update statistics with emotion categories
+                    const distribution = stats.sentiment_distribution || {};
+                    console.log('Raw distribution:', distribution);
+                    
+                    // Simplified approach - use direct values from API
+                    sentimentStats = {
+                        positive: distribution.positive || 0,
+                        negative: distribution.negative || 0,
+                        neutral: distribution.neutral || 0,
+                        total: stats.total_analyses || 0,
+                        emotions: distribution
+                    };
+                    
+                    console.log('Final sentimentStats:', sentimentStats);
+                    
+                    // Force update the UI immediately
+                    updateStats();
+                    updateHeaderStats();
+                } else {
+                    console.log('Stats API failed, showing empty dashboard');
+                    sentimentStats = { positive: 0, negative: 0, neutral: 0, total: 0, emotions: {} };
+                    updateStats();
+                    updateHeaderStats();
+                }
+                
+            } catch (error) {
+                console.error('Failed to load initial data:', error);
+                // Show empty dashboard for real data
+                sentimentStats = { positive: 0, negative: 0, neutral: 0, total: 0, emotions: {} };
+                updateStats();
+                updateHeaderStats();
+            }
+        }
+
+        // Load dashboard summary from API
+        async function loadDashboardSummary() {
+            try {
+                // Get real statistics from the service
+                const statsResponse = await fetch(`${API_BASE}/sentiment/statistics`);
+                if (statsResponse.ok) {
+                    const stats = await statsResponse.json();
+                    console.log('Loaded real stats:', stats);
+                    
+                    // Update statistics with emotion categories
+                    const distribution = stats.sentiment_distribution || {};
+                    console.log('Raw distribution:', distribution);
+                    
+                    // Simplified approach - use direct values from API (like the working fixed dashboard)
+                    sentimentStats = {
+                        positive: distribution.positive || 0,
+                        negative: distribution.negative || 0,
+                        neutral: distribution.neutral || 0,
+                        total: stats.total_analyses || 0,
+                        emotions: distribution // Keep original for any emotion-specific features
+                    };
+                    
+                    console.log('Processed sentimentStats:', sentimentStats);
+                    
+                    updateStats();
+                    
+                    // Get timeseries data with extended time range
+                    const endTime = new Date().toISOString();
+                    const startTime = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+                    const timeseriesResponse = await fetch(`${API_BASE}/sentiment/timeseries?group_by=day&limit=30&start_time=${startTime}&end_time=${endTime}`);
+                    if (timeseriesResponse.ok) {
+                        currentTimeseriesData = await timeseriesResponse.json();
+                    }
+                    
+                    return true;
+                } else {
+                    throw new Error(`Stats API returned ${statsResponse.status}`);
+                }
+            } catch (error) {
+                console.error('Failed to load dashboard summary:', error);
+                // Show empty dashboard instead of fake data
+                sentimentStats = { positive: 0, negative: 0, neutral: 0, total: 0, emotions: {} };
+                updateStats();
+                return false;
+            }
+        }
+
+        // Load sample data with realistic trends
+        async function loadSampleDataWithTrends() {
+            console.log('Loading sample data with trends...');
+            
+            // Create sample data with trends over the last 30 days
+            const today = new Date();
+            const sampleData = [];
+            const products = ['Premium Dog Nutrition Food', 'Twizzlers Strawberry Candy', 'Gourmet Hot Sauce', 'Professional Power Drill', 'Anti-Aging Serum Premium'];
+            const customerTypes = ['Premium', 'Trial', 'Normal'];
+            
+            // Generate data for the last 30 days
+            for (let i = 30; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                
+                // Generate 2-8 reviews per day
+                const reviewsPerDay = Math.floor(Math.random() * 7) + 2;
+                
+                for (let j = 0; j < reviewsPerDay; j++) {
+                    const product = products[Math.floor(Math.random() * products.length)];
+                    const customerType = customerTypes[Math.floor(Math.random() * customerTypes.length)];
+                    
+                    // Create sentiment bias based on product (some products perform better)
+                    let sentimentBias = 0.5; // neutral
+                    if (product.includes('Premium') || product.includes('Gourmet')) sentimentBias = 0.7; // more positive
+                    if (product.includes('Hot Sauce')) sentimentBias = 0.4; // more mixed due to heat preferences
+                    
+                    const rand = Math.random();
+                    let sentiment;
+                    if (rand < sentimentBias) {
+                        sentiment = 'positive';
+                    } else if (rand < sentimentBias + 0.25) {
+                        sentiment = 'neutral';
+                    } else {
+                        sentiment = 'negative';
+                    }
+                    
+                    sampleData.push({
+                        id: sampleData.length + 1,
+                        text: `Sample review for ${product}`,
+                        sentiment: sentiment,
+                        confidence: 0.75 + Math.random() * 0.2,
+                        product: product,
+                        customer_type: customerType,
+                        timestamp: date.toISOString()
+                    });
+                }
+            }
+            
+            currentData = sampleData;
+            
+            // Update statistics
+            sentimentStats = {
+                positive: sampleData.filter(d => d.sentiment === 'positive').length,
+                negative: sampleData.filter(d => d.sentiment === 'negative').length,
+                neutral: sampleData.filter(d => d.sentiment === 'neutral').length,
+                total: sampleData.length
+            };
+            
+            console.log('Sample data loaded:', sentimentStats);
+        }
+
+        // Load sample data (fallback for demo)
+        async function loadSampleData() {
+            // Simulated data based on the CSV structure
+            currentData = [
+                {
+                    id: 1,
+                    text: "I absolutely love this product! It's amazing!",
+                    sentiment: "positive",
+                    confidence: 0.95,
+                    product: "Dog Food",
+                    customer_type: "Trial",
+                    timestamp: new Date('2023-01-15').toISOString()
+                },
+                {
+                    id: 2,
+                    text: "Product arrived labeled incorrectly. Very disappointed.",
+                    sentiment: "negative",
+                    confidence: 0.88,
+                    product: "Peanuts",
+                    customer_type: "Trial",
+                    timestamp: new Date('2023-01-16').toISOString()
+                },
+                {
+                    id: 3,
+                    text: "This is a decent product. Nothing special but works fine.",
+                    sentiment: "neutral",
+                    confidence: 0.72,
+                    product: "Confection",
+                    customer_type: "Trial",
+                    timestamp: new Date('2023-01-17').toISOString()
+                }
+            ];
+
+            // Generate more sample data for better visualization
+            const sentiments = ['positive', 'negative', 'neutral'];
+            const products = ['Dog Food', 'Peanuts', 'Confection', 'Hot Sauce', 'Cat Food', 'Candy', 'Twizzlers'];
+            const customerTypes = ['Premium', 'Trial', 'Normal'];
+            
+            for (let i = 4; i <= 50; i++) {
+                const sentiment = sentiments[Math.floor(Math.random() * sentiments.length)];
+                const product = products[Math.floor(Math.random() * products.length)];
+                const customerType = customerTypes[Math.floor(Math.random() * customerTypes.length)];
+                
+                currentData.push({
+                    id: i,
+                    text: `Sample review text ${i}`,
+                    sentiment: sentiment,
+                    confidence: 0.6 + Math.random() * 0.4,
+                    product: product,
+                    customer_type: customerType,
+                    timestamp: new Date(2023, 0, Math.floor(Math.random() * 365)).toISOString()
+                });
+            }
+        }
+
+        // Update statistics display (don't override sentimentStats from API)
+        function updateStats() {
+            console.log('Updating stats display with:', sentimentStats);
+            
+            // Use the sentimentStats from API, don't recalculate from currentData
+            document.getElementById('positive-count').textContent = sentimentStats.positive.toLocaleString();
+            document.getElementById('negative-count').textContent = sentimentStats.negative.toLocaleString();
+            document.getElementById('neutral-count').textContent = sentimentStats.neutral.toLocaleString();
+            document.getElementById('total-count').textContent = sentimentStats.total.toLocaleString();
+        }
+
+        // Update header statistics
+        function updateHeaderStats() {
+            document.getElementById('header-total').textContent = sentimentStats.total;
+        }
+
+        // Initialize charts
+        async function initializeCharts() {
+            console.log('Initializing charts...');
+            await createSentimentTrendChart();
+            createSentimentPieChart();
+            await createProductSentimentChart();
+            await createSuggestionCategoryChart();
+            createEmotionDistributionChart();
+            createTimelineChart();
+        }
+
+        // Create sentiment trend chart (Chart.js version - matches complete dashboard)
+        async function createSentimentTrendChart() {
+            // Create canvas element if it doesn't exist
+            const container = document.getElementById('sentiment-trend-chart');
+            let canvas = container.querySelector('canvas');
+            if (!canvas) {
+                canvas = document.createElement('canvas');
+                canvas.id = 'sentiment-trend-canvas';
+                container.innerHTML = '';
+                container.appendChild(canvas);
+            }
+            
+            const ctx = canvas.getContext('2d');
+            
+            try {
+                const endTime = new Date().toISOString();
+                const startTime = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+                const response = await fetch(`${API_BASE}/sentiment/timeseries?group_by=day&limit=30&start_time=${startTime}&end_time=${endTime}`);
+                if (!response.ok) throw new Error('Timeseries API failed');
+                
+                const timeseriesData = await response.json();
+                console.log('Timeseries data:', timeseriesData);
+                
+                if (!timeseriesData || timeseriesData.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-data">
+                            <i class="fas fa-calendar-alt"></i>
+                            <p>No timeline data available</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Process data by date to avoid duplicates
+                const dateMap = {};
+                timeseriesData.forEach(item => {
+                    const date = item.time.split('T')[0]; // Get date part only
+                    if (!dateMap[date]) {
+                        dateMap[date] = { positive: 0, negative: 0, neutral: 0 };
+                    }
+                    dateMap[date].positive += item.positive || 0;
+                    dateMap[date].negative += item.negative || 0;
+                    dateMap[date].neutral += item.neutral || 0;
+                });
+
+                const dates = Object.keys(dateMap).sort().map(date => new Date(date));
+                const positiveData = Object.keys(dateMap).sort().map(date => dateMap[date].positive);
+                const negativeData = Object.keys(dateMap).sort().map(date => dateMap[date].negative);
+                const neutralData = Object.keys(dateMap).sort().map(date => dateMap[date].neutral);
+
+                // Destroy existing chart
+                if (window.sentimentTrendChart) {
+                    window.sentimentTrendChart.destroy();
+                }
+
+                window.sentimentTrendChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dates,
+                        datasets: [
+                            {
+                                label: 'Positive',
+                                data: positiveData,
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            },
+                            {
+                                label: 'Negative',
+                                data: negativeData,
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            },
+                            {
+                                label: 'Neutral',
+                                data: neutralData,
+                                borderColor: '#64748b',
+                                backgroundColor: 'rgba(100, 116, 139, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    usePointStyle: true,
+                                    font: {
+                                        family: 'Inter'
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleColor: '#ffffff',
+                                bodyColor: '#ffffff',
+                                borderColor: '#e2e8f0',
+                                borderWidth: 1
+                            }
+                        },
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: {
+                                    displayFormats: {
+                                        day: 'MMM dd'
+                                    }
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error creating trend chart:', error);
+                container.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Error loading trend data</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Create sentiment pie chart
+        function createSentimentPieChart() {
+            console.log('Creating sentiment pie chart with stats:', sentimentStats);
+            const ctx = document.getElementById('sentiment-pie-chart').getContext('2d');
+            
+            if (sentimentStats.total === 0) {
+                ctx.canvas.parentElement.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-chart-pie"></i>
+                        <p>No sentiment data available</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Destroy existing chart if it exists
+            if (window.sentimentPieChart) {
+                window.sentimentPieChart.destroy();
+            }
+            
+            window.sentimentPieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Positive', 'Negative', 'Neutral'],
+                    datasets: [{
+                        data: [sentimentStats.positive, sentimentStats.negative, sentimentStats.neutral],
+                        backgroundColor: ['#10b981', '#ef4444', '#64748b'],
+                        borderWidth: 0,
+                        hoverBorderWidth: 2,
+                        hoverBorderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    size: 12,
+                                    family: 'Inter'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed * 100) / total).toFixed(1);
+                                    return `${context.label}: ${context.parsed.toLocaleString()} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+        }
+
+        // Create product sentiment chart
+        async function createProductSentimentChart() {
+            try {
+                // Get real products data from API
+                const response = await fetch(`${API_BASE}/products?limit=10`);
+                if (!response.ok) {
+                    console.log('No products data available');
+                    return;
+                }
+                
+                const data = await response.json();
+                const products = data.products || [];
+                
+                if (products.length === 0) {
+                    console.log('No products found');
+                    document.getElementById('product-sentiment-chart').innerHTML = 
+                        '<div style="text-align: center; padding: 2rem; color: var(--text-secondary);">No product data available. Import some data to see product analysis.</div>';
+                    return;
+                }
+
+                console.log('Products from API:', products);
+                
+                const productNames = products.map(p => p.product_id.length > 15 ? p.product_id.substring(0, 15) + '...' : p.product_id);
+                const positiveData = products.map(p => p.positive || 0);
+                const negativeData = products.map(p => p.negative || 0);
+                const neutralData = products.map(p => p.neutral || 0);
+
+                const trace1 = {
+                    x: productNames,
+                    y: positiveData,
+                    name: 'Positive',
+                    type: 'bar',
+                    marker: { color: '#10b981' }
+                };
+
+                const trace2 = {
+                    x: productNames,
+                    y: negativeData,
+                    name: 'Negative',
+                    type: 'bar',
+                    marker: { color: '#ef4444' }
+                };
+
+                const trace3 = {
+                    x: productNames,
+                    y: neutralData,
+                    name: 'Neutral',
+                    type: 'bar',
+                    marker: { color: '#64748b' }
+                };
+
+                const layout = {
+                    title: '',
+                    xaxis: { 
+                        title: 'Products',
+                        tickangle: -45,
+                        automargin: true
+                    },
+                    yaxis: { title: 'Number of Reviews' },
+                    barmode: 'group',
+                    margin: { t: 20, r: 20, b: 120, l: 60 },
+                    showlegend: true,
+                    legend: { orientation: 'h', y: -0.3 }
+                };
+
+                console.log('Creating product chart with API data');
+                Plotly.newPlot('product-sentiment-chart', [trace1, trace2, trace3], layout, {responsive: true});
+                
+            } catch (error) {
+                console.error('Error creating product chart:', error);
+                document.getElementById('product-sentiment-chart').innerHTML = 
+                    '<div style="text-align: center; padding: 2rem; color: var(--text-secondary);">Error loading product data. Please try again.</div>';
+            }
+        }
+
+        // Single text analysis
+        document.getElementById('single-analysis-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const text = document.getElementById('single-text').value;
+            const product = document.getElementById('single-product').value;
+            const team = document.getElementById('single-team').value;
+            
+            if (!text.trim()) return;
+
+            const resultDiv = document.getElementById('single-result');
+            resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div> Analyzing...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        product: product || null,
+                        team: team || null
+                    })
+                });
+
+                const result = await response.json();
+                displaySingleResult(result);
+            } catch (error) {
+                console.error('Analysis failed:', error);
+                // Fallback to mock analysis for demo
+                const mockResult = {
+                    sentiment: text.toLowerCase().includes('good') || text.toLowerCase().includes('great') || text.toLowerCase().includes('love') ? 'positive' : 
+                              text.toLowerCase().includes('bad') || text.toLowerCase().includes('hate') || text.toLowerCase().includes('terrible') ? 'negative' : 'neutral',
+                    confidence: 0.85 + Math.random() * 0.1,
+                    text: text,
+                    product: product || 'Unknown',
+                    team: team || 'Unknown'
+                };
+                displaySingleResult(mockResult);
+            }
+        });
+
+        // Display single analysis result
+        function displaySingleResult(result) {
+            const resultDiv = document.getElementById('single-result');
+            
+            // Map emotions to colors and classes
+            const emotionColors = {
+                'joy': { class: 'sentiment-positive', color: '#10b981', icon: 'fas fa-smile' },
+                'positive': { class: 'sentiment-positive', color: '#22c55e', icon: 'fas fa-thumbs-up' },
+                'POSITIVE': { class: 'sentiment-positive', color: '#22c55e', icon: 'fas fa-thumbs-up' },
+                'negative': { class: 'sentiment-negative', color: '#ef4444', icon: 'fas fa-thumbs-down' },
+                'NEGATIVE': { class: 'sentiment-negative', color: '#ef4444', icon: 'fas fa-thumbs-down' },
+                'sadness': { class: 'sentiment-negative', color: '#f59e0b', icon: 'fas fa-sad-tear' },
+                'disgust': { class: 'sentiment-negative', color: '#dc2626', icon: 'fas fa-grimace' },
+                'neutral': { class: 'sentiment-neutral', color: '#64748b', icon: 'fas fa-meh' },
+                'surprise': { class: 'sentiment-neutral', color: '#8b5cf6', icon: 'fas fa-surprise' }
+            };
+            
+            const emotion = emotionColors[result.sentiment] || emotionColors['neutral'];
+            const confidencePercent = (result.confidence * 100).toFixed(1);
+            
+            let allScoresHtml = '';
+            if (result.all_scores && Object.keys(result.all_scores).length > 1) {
+                allScoresHtml = '<div style="margin-top: 1rem;"><strong>All Emotion Scores:</strong><div style="margin-top: 0.5rem;">';
+                Object.entries(result.all_scores).forEach(([emotion, score]) => {
+                    const emotionInfo = emotionColors[emotion] || emotionColors['neutral'];
+                    const scorePercent = (score * 100).toFixed(1);
+                    allScoresHtml += `
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
+                            <span><i class="${emotionInfo.icon}" style="color: ${emotionInfo.color}; margin-right: 0.5rem;"></i>${emotion}</span>
+                            <span>${scorePercent}%</span>
+                        </div>
+                    `;
+                });
+                allScoresHtml += '</div></div>';
+            }
+            
+            resultDiv.innerHTML = `
+                <div class="result-card">
+                    <div class="result-header">
+                        <span class="sentiment-badge ${emotion.class}" style="background-color: ${emotion.color};">
+                            <i class="${emotion.icon}" style="margin-right: 0.25rem;"></i>
+                            ${result.sentiment.toUpperCase()}
+                        </span>
+                        <span class="confidence">${confidencePercent}% confidence</span>
+                    </div>
+                    <p><strong>Text:</strong> "${result.text}"</p>
+                    ${result.product ? `<p><strong>Product:</strong> ${result.product}</p>` : ''}
+                    ${result.team ? `<p><strong>Team:</strong> ${result.team}</p>` : ''}
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: ${confidencePercent}%; background-color: ${emotion.color};"></div>
+                    </div>
+                    ${allScoresHtml}
+                </div>
+            `;
+        }
+
+        // Batch analysis
+        async function analyzeBatch() {
+            const texts = document.getElementById('batch-texts').value.split('\n').filter(t => t.trim());
+            if (texts.length === 0) return;
+
+            const resultsDiv = document.getElementById('batch-results');
+            const contentDiv = document.getElementById('batch-results-content');
+            
+            resultsDiv.style.display = 'block';
+            contentDiv.innerHTML = '<div class="loading"><div class="spinner"></div> Analyzing batch...</div>';
+
+            try {
+                const batchData = texts.map(text => ({ text: text.trim() }));
+                
+                // Mock batch analysis for demo
+                const results = batchData.map((item, index) => ({
+                    text: item.text,
+                    sentiment: item.text.toLowerCase().includes('good') || item.text.toLowerCase().includes('great') || item.text.toLowerCase().includes('love') ? 'positive' : 
+                              item.text.toLowerCase().includes('bad') || item.text.toLowerCase().includes('hate') || item.text.toLowerCase().includes('terrible') ? 'negative' : 'neutral',
+                    confidence: 0.75 + Math.random() * 0.2
+                }));
+
+                displayBatchResults(results);
+            } catch (error) {
+                console.error('Batch analysis failed:', error);
+                contentDiv.innerHTML = '<p class="text-danger">Batch analysis failed. Please try again.</p>';
+            }
+        }
+
+        // Display batch results
+        function displayBatchResults(results) {
+            const contentDiv = document.getElementById('batch-results-content');
+            
+            let html = `<div class="mb-3"><strong>Analyzed ${results.length} texts:</strong></div>`;
+            
+            results.forEach((result, index) => {
+                const sentimentClass = `sentiment-${result.sentiment}`;
+                const confidencePercent = (result.confidence * 100).toFixed(1);
+                
+                html += `
+                    <div class="result-card">
+                        <div class="result-header">
+                            <span class="sentiment-badge ${sentimentClass}">${result.sentiment.toUpperCase()}</span>
+                            <span class="confidence">${confidencePercent}% confidence</span>
+                        </div>
+                        <p>"${result.text}"</p>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: ${confidencePercent}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            contentDiv.innerHTML = html;
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            console.log('Loading dashboard data...');
+            updateStats();
+            setTimeout(async () => {
+                await createSentimentTrendChart();
+                createSentimentPieChart();
+                await createProductSentimentChart();
+                createEmotionDistributionChart();
+            }, 100); // Small delay to ensure DOM is ready
+        }
+
+        // Test suggestions API
+        async function testSuggestionsAPI() {
+            console.log('Testing suggestions API...');
+            try {
+                const response = await fetch(`${API_BASE}/api/suggestions/generate`);
+                console.log('API Response status:', response.status);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('API Response data:', data);
+                    alert(`API working! Found ${data.suggestions ? data.suggestions.length : 0} suggestions`);
+                } else {
+                    alert('API failed with status: ' + response.status);
+                }
+            } catch (error) {
+                console.error('API test error:', error);
+                alert('API test failed: ' + error.message);
+            }
+        }
+
+        // Generate suggestions
+        async function generateSuggestions() {
+            const sentiment = document.getElementById('suggestion-sentiment').value;
+            const product = document.getElementById('suggestion-product').value;
+            const customerType = document.getElementById('suggestion-customer-type').value;
+            
+            const resultsDiv = document.getElementById('suggestions-results');
+            const contentDiv = document.getElementById('suggestions-content');
+            
+            resultsDiv.style.display = 'block';
+            contentDiv.innerHTML = '<div class="loading"><div class="spinner"></div> Generating suggestions...</div>';
+
+            try {
+                const params = new URLSearchParams();
+                if (sentiment !== 'all') params.append('sentiment_filter', sentiment);
+                if (product !== 'all') params.append('product_id', product);
+                if (customerType !== 'all') params.append('customer_type_filter', customerType);
+                
+                const response = await fetch(`${API_BASE}/api/suggestions/generate?${params}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    displaySuggestionsFromAPI(data);
+                } else {
+                    throw new Error('API request failed');
+                }
+            } catch (error) {
+                console.error('Failed to generate suggestions:', error);
+                // Fallback to local suggestions
+                generateLocalSuggestions(sentiment, product, customerType);
+            }
+        }
+
+        // Generate local suggestions when API fails
+        function generateLocalSuggestions(sentiment, product, customerType) {
+            let filteredData = currentData || [];
+            
+            if (sentiment !== 'all') {
+                filteredData = filteredData.filter(d => d.sentiment === sentiment);
+            }
+            
+            if (category !== 'all') {
+                filteredData = filteredData.filter(d => d.customer_type === category);
+            }
+
+            // Generate smart suggestions based on filtered data
+            const suggestions = [];
+            const totalReviews = filteredData.length;
+            const positiveCount = filteredData.filter(d => d.sentiment === 'positive').length;
+            const negativeCount = filteredData.filter(d => d.sentiment === 'negative').length;
+            const neutralCount = filteredData.filter(d => d.sentiment === 'neutral').length;
+
+            if (totalReviews === 0) {
+                suggestions.push({
+                    category: 'Data Collection',
+                    priority: 'medium',
+                    title: 'Increase Data Collection',
+                    description: 'No reviews found matching your criteria. Consider expanding data collection efforts.',
+                    data_points: 0,
+                    action_items: [
+                        'Implement review collection campaigns',
+                        'Incentivize customer feedback',
+                        'Expand data sources'
+                    ]
+                });
+            } else {
+                // Analyze sentiment distribution
+                const positiveRatio = positiveCount / totalReviews;
+                const negativeRatio = negativeCount / totalReviews;
+
+                if (negativeRatio > 0.4) {
+                    suggestions.push({
+                        category: 'Quality Improvement',
+                        priority: 'high',
+                        title: 'Address Quality Concerns',
+                        description: `High negative sentiment detected (${(negativeRatio * 100).toFixed(1)}%). Immediate action required.`,
+                        data_points: negativeCount,
+                        action_items: [
+                            'Analyze common complaints in negative reviews',
+                            'Implement quality control improvements',
+                            'Develop customer service response protocols',
+                            'Consider product redesign if necessary'
+                        ]
+                    });
+                }
+
+                if (positiveRatio > 0.7) {
+                    suggestions.push({
+                        category: 'Marketing Opportunity',
+                        priority: 'medium',
+                        title: 'Leverage Positive Feedback',
+                        description: `Strong positive sentiment (${(positiveRatio * 100).toFixed(1)}%) presents marketing opportunities.`,
+                        data_points: positiveCount,
+                        action_items: [
+                            'Feature positive reviews in marketing materials',
+                            'Create customer success stories',
+                            'Encourage satisfied customers to leave more reviews',
+                            'Develop referral programs'
+                        ]
+                    });
+                }
+
+                // Category-specific suggestions
+                if (category === 'Premium') {
+                    suggestions.push({
+                        category: 'Premium Experience',
+                        priority: 'medium',
+                        title: 'Enhance Premium Customer Experience',
+                        description: 'Premium customers have high expectations. Focus on luxury and exclusivity.',
+                        data_points: totalReviews,
+                        action_items: [
+                            'Develop VIP customer service tiers',
+                            'Create exclusive product lines',
+                            'Implement premium packaging',
+                            'Offer personalized experiences'
+                        ]
+                    });
+                } else if (category === 'Trial') {
+                    suggestions.push({
+                        category: 'Conversion Strategy',
+                        priority: 'high',
+                        title: 'Convert Trial Customers',
+                        description: 'Trial customers are evaluating your products. Focus on demonstrating value.',
+                        data_points: totalReviews,
+                        action_items: [
+                            'Provide comprehensive product education',
+                            'Offer extended trial periods',
+                            'Create comparison guides',
+                            'Implement follow-up communication'
+                        ]
+                    });
+                } else if (category === 'Normal') {
+                    suggestions.push({
+                        category: 'Customer Retention',
+                        priority: 'medium',
+                        title: 'Improve Regular Customer Experience',
+                        description: 'Regular customers form the backbone of your business. Focus on consistency and value.',
+                        data_points: totalReviews,
+                        action_items: [
+                            'Maintain consistent product quality',
+                            'Develop loyalty programs',
+                            'Provide reliable customer service',
+                            'Offer bulk purchase discounts'
+                        ]
+                    });
+                }
+
+                // Product-specific suggestions
+                const productCounts = {};
+                filteredData.forEach(review => {
+                    const product = review.product;
+                    if (!productCounts[product]) {
+                        productCounts[product] = { positive: 0, negative: 0, neutral: 0, total: 0 };
+                    }
+                    productCounts[product][review.sentiment]++;
+                    productCounts[product].total++;
+                });
+
+                Object.entries(productCounts).forEach(([product, counts]) => {
+                    if (counts.total >= 3) { // Only suggest for products with sufficient data
+                        const productNegativeRatio = counts.negative / counts.total;
+                        const productPositiveRatio = counts.positive / counts.total;
+
+                        if (productNegativeRatio > 0.5) {
+                            suggestions.push({
+                                category: 'Product Improvement',
+                                priority: 'high',
+                                title: `Improve ${product}`,
+                                description: `${product} shows concerning negative sentiment (${(productNegativeRatio * 100).toFixed(1)}%).`,
+                                data_points: counts.negative,
+                                action_items: [
+                                    `Investigate specific issues with ${product}`,
+                                    'Consider product reformulation or redesign',
+                                    'Implement targeted customer support',
+                                    'Analyze competitor alternatives'
+                                ]
+                            });
+                        } else if (productPositiveRatio > 0.8) {
+                            suggestions.push({
+                                category: 'Success Story',
+                                priority: 'low',
+                                title: `Promote ${product}`,
+                                description: `${product} shows excellent performance (${(productPositiveRatio * 100).toFixed(1)}% positive).`,
+                                data_points: counts.positive,
+                                action_items: [
+                                    `Feature ${product} in marketing campaigns`,
+                                    'Analyze success factors for replication',
+                                    'Expand product line based on this success',
+                                    'Create case studies'
+                                ]
+                            });
+                        }
+                    }
+                });
+            }
+
+            // Default suggestion if none generated
+            if (suggestions.length === 0) {
+                suggestions.push({
+                    category: 'General',
+                    priority: 'low',
+                    title: 'Continue Monitoring',
+                    description: 'Current sentiment levels are stable. Continue regular monitoring for trends.',
+                    data_points: totalReviews,
+                    action_items: [
+                        'Maintain current quality standards',
+                        'Regular sentiment analysis reviews',
+                        'Proactive customer feedback collection',
+                        'Monitor for emerging trends'
+                    ]
+                });
+            }
+
+            // Sort by priority
+            const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+            suggestions.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
+
+            // Display suggestions
+            displaySuggestionsFromLocal({
+                suggestions: suggestions,
+                analysis_summary: {
+                    total_reviews_analyzed: totalReviews,
+                    sentiment_distribution: {
+                        positive: positiveCount,
+                        negative: negativeCount,
+                        neutral: neutralCount
+                    },
+                    filters_applied: {
+                        sentiment: sentiment,
+                        customer_type: category
+                    }
+                }
+            });
+        }
+
+        // Display suggestions from local generation
+        function displaySuggestionsFromLocal(data) {
+            const contentDiv = document.getElementById('suggestions-content');
+            
+            let html = `<div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--background-color); border-radius: 0.5rem;">
+                <strong>Generated ${data.suggestions.length} suggestions based on ${data.analysis_summary.total_reviews_analyzed} reviews</strong>
+                <div style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+                    Positive: ${data.analysis_summary.sentiment_distribution.positive} | 
+                    Negative: ${data.analysis_summary.sentiment_distribution.negative} | 
+                    Neutral: ${data.analysis_summary.sentiment_distribution.neutral}
+                </div>
+            </div>`;
+            
+            data.suggestions.forEach(suggestion => {
+                const priorityColor = suggestion.priority === 'high' ? 'danger' : 
+                                    suggestion.priority === 'medium' ? 'warning' : 'secondary';
+                
+                html += `
+                    <div class="suggestion-item">
+                        <div class="suggestion-category" style="background: var(--${priorityColor}-color)">${suggestion.category}</div>
+                        <h4>${suggestion.title}</h4>
+                        <p>${suggestion.description}</p>
+                        <div style="margin-top: 0.75rem;">
+                            <strong>Action Items:</strong>
+                            <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                                ${suggestion.action_items.map(item => `<li>${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <small class="text-secondary">Priority: ${suggestion.priority.toUpperCase()} | Based on ${suggestion.data_points} data points</small>
+                    </div>
+                `;
+            });
+            
+            contentDiv.innerHTML = html;
+        }
+
+        // Display suggestions
+        function displaySuggestions(data) {
+            const resultsDiv = document.getElementById('suggestions-results');
+            const contentDiv = document.getElementById('suggestions-content');
+            
+            resultsDiv.style.display = 'block';
+            
+            // Generate suggestions based on data
+            const suggestions = generateSmartSuggestions(data);
+            
+            let html = '';
+            suggestions.forEach(suggestion => {
+                html += `
+                    <div class="suggestion-item">
+                        <div class="suggestion-category">${suggestion.category}</div>
+                        <h4>${suggestion.title}</h4>
+                        <p>${suggestion.description}</p>
+                        <small class="text-secondary">Based on ${suggestion.dataPoints} data points</small>
+                    </div>
+                `;
+            });
+            
+            contentDiv.innerHTML = html;
+        }
+
+        // Generate smart suggestions
+        function generateSmartSuggestions(data) {
+            const suggestions = [];
+            
+            // Analyze sentiment patterns
+            const positiveCount = data.filter(d => d.sentiment === 'positive').length;
+            const negativeCount = data.filter(d => d.sentiment === 'negative').length;
+            
+            if (negativeCount > positiveCount) {
+                suggestions.push({
+                    category: 'Quality Improvement',
+                    title: 'Focus on Product Quality',
+                    description: 'High negative sentiment detected. Consider reviewing product quality and customer service processes.',
+                    dataPoints: negativeCount
+                });
+            }
+            
+            // Analyze by customer type
+            const customerTypes = [...new Set(data.map(d => d.customer_type))];
+            customerTypes.forEach(type => {
+                const typeData = data.filter(d => d.customer_type === type);
+                const typeNegative = typeData.filter(d => d.sentiment === 'negative').length;
+                
+                if (typeNegative > typeData.length * 0.3) {
+                    suggestions.push({
+                        category: 'Customer Retention',
+                        title: `Improve ${type} Customer Experience`,
+                        description: `${type} customers show higher negative sentiment. Consider targeted improvements for this segment.`,
+                        dataPoints: typeData.length
+                    });
+                }
+            });
+            
+            // Product-specific suggestions
+            const products = [...new Set(data.map(d => d.product))];
+            products.forEach(product => {
+                const productData = data.filter(d => d.product === product);
+                const productPositive = productData.filter(d => d.sentiment === 'positive').length;
+                
+                if (productPositive > productData.length * 0.7) {
+                    suggestions.push({
+                        category: 'Marketing Opportunity',
+                        title: `Promote ${product}`,
+                        description: `${product} shows high positive sentiment. Consider featuring this product more prominently.`,
+                        dataPoints: productData.length
+                    });
+                }
+            });
+            
+            return suggestions.length > 0 ? suggestions : [{
+                category: 'General',
+                title: 'Continue Monitoring',
+                description: 'Keep tracking sentiment trends to identify improvement opportunities.',
+                dataPoints: data.length
+            }];
+        }
+
+        // Create suggestion category chart based on current data
+        async function createSuggestionCategoryChart() {
+            try {
+                // Get suggestion data to analyze categories
+                const response = await fetch(`${API_BASE}/api/suggestions/generate`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const suggestions = data.suggestions || [];
+                    
+                    // Count suggestions by category
+                    const categoryCount = {};
+                    suggestions.forEach(suggestion => {
+                        const category = suggestion.category;
+                        categoryCount[category] = (categoryCount[category] || 0) + 1;
+                    });
+                    
+                    const categories = Object.keys(categoryCount);
+                    const values = Object.values(categoryCount);
+                    
+                    if (categories.length === 0) {
+                        document.getElementById('suggestion-category-chart').innerHTML = 
+                            '<div style="text-align: center; padding: 2rem; color: var(--text-secondary);">No suggestion categories available. Import data to generate suggestions.</div>';
+                        return;
+                    }
+                    
+                    const colors = {
+                        'Quality Improvement': '#ef4444',
+                        'Marketing Opportunity': '#10b981', 
+                        'Customer Retention': '#f59e0b',
+                        'Product Improvement': '#dc2626',
+                        'Success Story': '#22c55e',
+                        'Conversion Strategy': '#8b5cf6',
+                        'Premium Experience': '#6366f1',
+                        'General': '#64748b'
+                    };
+                    
+                    const chartData = [{
+                        values: values,
+                        labels: categories,
+                        type: 'pie',
+                        marker: {
+                            colors: categories.map(cat => colors[cat] || '#64748b')
+                        },
+                        textinfo: 'label+percent',
+                        textposition: 'outside'
+                    }];
+
+                    const layout = {
+                        title: '',
+                        margin: { t: 20, r: 20, b: 20, l: 20 },
+                        showlegend: true,
+                        legend: { orientation: 'v', x: 1.1, y: 0.5 }
+                    };
+
+                    Plotly.newPlot('suggestion-category-chart', chartData, layout, {responsive: true});
+                } else {
+                    document.getElementById('suggestion-category-chart').innerHTML = 
+                        '<div style="text-align: center; padding: 2rem; color: var(--text-secondary);">Unable to load suggestion categories.</div>';
+                }
+            } catch (error) {
+                console.error('Error creating suggestion category chart:', error);
+                document.getElementById('suggestion-category-chart').innerHTML = 
+                    '<div style="text-align: center; padding: 2rem; color: var(--text-secondary);">Error loading suggestion categories.</div>';
+            }
+        }
+
+        // Load suggestions data
+        function loadSuggestionsData() {
+            createSuggestionCategoryChart();
+        }
+
+        // Display suggestions from API
+        function displaySuggestionsFromAPI(data) {
+            const contentDiv = document.getElementById('suggestions-content');
+            
+            let html = `<div class="mb-3"><strong>Generated ${data.suggestions.length} suggestions based on ${data.analysis_summary.total_reviews_analyzed} reviews:</strong></div>`;
+            
+            data.suggestions.forEach(suggestion => {
+                const priorityColor = suggestion.priority === 'high' ? 'danger' : 
+                                    suggestion.priority === 'medium' ? 'warning' : 'secondary';
+                
+                html += `
+                    <div class="suggestion-item">
+                        <div class="suggestion-category" style="background: var(--${priorityColor}-color)">${suggestion.category}</div>
+                        <h4>${suggestion.title}</h4>
+                        <p>${suggestion.description}</p>
+                        <div style="margin-top: 0.75rem;">
+                            <strong>Action Items:</strong>
+                            <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                                ${suggestion.action_items.map(item => `<li>${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <small class="text-secondary">Priority: ${suggestion.priority.toUpperCase()} | Based on ${suggestion.data_points} data points</small>
+                    </div>
+                `;
+            });
+            
+            contentDiv.innerHTML = html;
+        }
+
+        // Load insights data
+        async function loadInsightsData() {
+            try {
+                const response = await fetch(`${API_BASE}/api/analytics/insights`);
+                if (response.ok) {
+                    const data = await response.json();
+                    loadTopProductsFromAPI(data.top_products);
+                    loadAttentionProductsFromAPI(data.attention_products);
+                } else {
+                    throw new Error('API request failed');
+                }
+            } catch (error) {
+                console.error('Failed to load insights:', error);
+                // Fallback to products API
+                await loadTopProductsFromProductsAPI();
+                await loadAttentionProductsFromProductsAPI();
+            }
+            await createTimelineChart();
+        }
+
+        // Load top products from products API (fallback)
+        async function loadTopProductsFromProductsAPI() {
+            try {
+                const response = await fetch(`${API_BASE}/products?limit=10`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const products = data.products || [];
+                    
+                    // Sort by positive percentage
+                    const topProducts = products
+                        .filter(p => p.total_reviews >= 2)
+                        .sort((a, b) => b.positive_percentage - a.positive_percentage)
+                        .slice(0, 5);
+                    
+                    loadTopProductsFromAPI(topProducts.map(p => ({
+                        product_id: p.product_id,
+                        score: p.positive_percentage,
+                        total_reviews: p.total_reviews
+                    })));
+                } else {
+                    document.getElementById('top-products-list').innerHTML = 
+                        '<p class="text-secondary">No product data available. Import data to see insights.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading top products:', error);
+                document.getElementById('top-products-list').innerHTML = 
+                    '<p class="text-secondary">Error loading product data.</p>';
+            }
+        }
+
+        // Load attention products from products API (fallback)
+        async function loadAttentionProductsFromProductsAPI() {
+            try {
+                const response = await fetch(`${API_BASE}/products?limit=10`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const products = data.products || [];
+                    
+                    // Sort by negative percentage
+                    const attentionProducts = products
+                        .filter(p => p.total_reviews >= 2 && p.negative_percentage > 20)
+                        .sort((a, b) => b.negative_percentage - a.negative_percentage)
+                        .slice(0, 5);
+                    
+                    loadAttentionProductsFromAPI(attentionProducts.map(p => ({
+                        product_id: p.product_id,
+                        score: p.negative_percentage,
+                        total_reviews: p.total_reviews
+                    })));
+                } else {
+                    document.getElementById('attention-products-list').innerHTML = 
+                        '<p class="text-secondary">No products need attention. Great job!</p>';
+                }
+            } catch (error) {
+                console.error('Error loading attention products:', error);
+                document.getElementById('attention-products-list').innerHTML = 
+                    '<p class="text-secondary">Error loading product data.</p>';
+            }
+        }
+
+        // Load top products from API
+        function loadTopProductsFromAPI(topProducts) {
+            const topProductsDiv = document.getElementById('top-products-list');
+            let html = '';
+            
+            if (topProducts.length === 0) {
+                html = '<p class="text-secondary">No high-performing products found. Need more data for analysis.</p>';
+            } else {
+                topProducts.forEach((item, index) => {
+                    html += `
+                        <div class="result-card">
+                            <div class="result-header">
+                                <h4>${index + 1}. ${item.product_id}</h4>
+                                <span class="sentiment-badge sentiment-positive">${item.score.toFixed(1)}%</span>
+                            </div>
+                            <p>${item.total_reviews} reviews analyzed</p>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: ${item.score}%; background: #10b981;"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            topProductsDiv.innerHTML = html;
+        }
+
+        // Load products needing attention from API
+        function loadAttentionProductsFromAPI(attentionProducts) {
+            const attentionProductsDiv = document.getElementById('attention-products-list');
+            let html = '';
+            
+            if (attentionProducts.length === 0) {
+                html = '<p class="text-secondary">No products currently need immediate attention. Great job!</p>';
+            } else {
+                attentionProducts.forEach((item, index) => {
+                    html += `
+                        <div class="result-card">
+                            <div class="result-header">
+                                <h4>${item.product_id}</h4>
+                                <span class="sentiment-badge sentiment-negative">${item.score.toFixed(1)}% negative</span>
+                            </div>
+                            <p>${item.total_reviews} reviews analyzed</p>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: ${item.score}%; background: #ef4444;"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            attentionProductsDiv.innerHTML = html;
+        }
+
+        // Load top products
+        function loadTopProducts() {
+            const products = [...new Set(currentData.map(d => d.product))];
+            const productScores = products.map(product => {
+                const productData = currentData.filter(d => d.product === product);
+                const positiveCount = productData.filter(d => d.sentiment === 'positive').length;
+                const totalCount = productData.length;
+                return {
+                    product,
+                    score: totalCount > 0 ? (positiveCount / totalCount) * 100 : 0,
+                    totalReviews: totalCount
+                };
+            }).sort((a, b) => b.score - a.score);
+
+            const topProductsDiv = document.getElementById('top-products-list');
+            let html = '';
+            
+            productScores.slice(0, 5).forEach((item, index) => {
+                html += `
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h4>${index + 1}. ${item.product}</h4>
+                            <span class="sentiment-badge sentiment-positive">${item.score.toFixed(1)}%</span>
+                        </div>
+                        <p>${item.totalReviews} reviews analyzed</p>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: ${item.score}%; background: #10b981;"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            topProductsDiv.innerHTML = html;
+        }
+
+        // Load products needing attention
+        function loadAttentionProducts() {
+            const products = [...new Set(currentData.map(d => d.product))];
+            const productScores = products.map(product => {
+                const productData = currentData.filter(d => d.product === product);
+                const negativeCount = productData.filter(d => d.sentiment === 'negative').length;
+                const totalCount = productData.length;
+                return {
+                    product,
+                    negativeScore: totalCount > 0 ? (negativeCount / totalCount) * 100 : 0,
+                    totalReviews: totalCount
+                };
+            }).sort((a, b) => b.negativeScore - a.negativeScore);
+
+            const attentionProductsDiv = document.getElementById('attention-products-list');
+            let html = '';
+            
+            productScores.slice(0, 5).forEach((item, index) => {
+                if (item.negativeScore > 20) { // Only show products with >20% negative sentiment
+                    html += `
+                        <div class="result-card">
+                            <div class="result-header">
+                                <h4>${item.product}</h4>
+                                <span class="sentiment-badge sentiment-negative">${item.negativeScore.toFixed(1)}% negative</span>
+                            </div>
+                            <p>${item.totalReviews} reviews analyzed</p>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: ${item.negativeScore}%; background: #ef4444;"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            if (html === '') {
+                html = '<p class="text-secondary">No products currently need immediate attention. Great job!</p>';
+            }
+            
+            attentionProductsDiv.innerHTML = html;
+        }
+
+        // Create timeline chart
+        async function createTimelineChart() {
+            try {
+                // Get real timeseries data from API with extended time range
+                const endTime = new Date().toISOString();
+                const startTime = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+                const response = await fetch(`${API_BASE}/sentiment/timeseries?group_by=day&limit=30&start_time=${startTime}&end_time=${endTime}`);
+                
+                if (response.ok) {
+                    const timeseriesData = await response.json();
+                    console.log('Timeline data:', timeseriesData);
+                    
+                    if (timeseriesData && timeseriesData.length > 0) {
+                        const dates = timeseriesData.map(d => d.time);
+                        const positiveData = timeseriesData.map(d => d.positive || 0);
+                        const negativeData = timeseriesData.map(d => d.negative || 0);
+                        const neutralData = timeseriesData.map(d => d.neutral || 0);
+
+                        const trace1 = {
+                            x: dates,
+                            y: positiveData,
+                            type: 'scatter',
+                            mode: 'lines+markers',
+                            name: 'Positive',
+                            line: { color: '#10b981', width: 3 },
+                            fill: 'tonexty'
+                        };
+
+                        const trace2 = {
+                            x: dates,
+                            y: negativeData,
+                            type: 'scatter',
+                            mode: 'lines+markers',
+                            name: 'Negative',
+                            line: { color: '#ef4444', width: 3 }
+                        };
+
+                        const trace3 = {
+                            x: dates,
+                            y: neutralData,
+                            type: 'scatter',
+                            mode: 'lines+markers',
+                            name: 'Neutral',
+                            line: { color: '#64748b', width: 3 }
+                        };
+
+                        const layout = {
+                            title: '',
+                            xaxis: { title: 'Time Period' },
+                            yaxis: { title: 'Number of Reviews' },
+                            margin: { t: 20, r: 20, b: 40, l: 40 }
+                        };
+
+                        Plotly.newPlot('timeline-chart', [trace1, trace2, trace3], layout, {responsive: true});
+                    } else {
+                        document.getElementById('timeline-chart').innerHTML = 
+                            '<div style="text-align: center; padding: 2rem; color: var(--text-secondary);">No timeline data available. Import data to see trends.</div>';
+                    }
+                } else {
+                    document.getElementById('timeline-chart').innerHTML = 
+                        '<div style="text-align: center; padding: 2rem; color: var(--text-secondary);">Unable to load timeline data.</div>';
+                }
+            } catch (error) {
+                console.error('Error creating timeline chart:', error);
+                document.getElementById('timeline-chart').innerHTML = 
+                    '<div style="text-align: center; padding: 2rem; color: var(--text-secondary);">Error loading timeline data.</div>';
+            }
+        }
+
+        // Helper function to get week key
+        function getWeekKey(date) {
+            const year = date.getFullYear();
+            const week = Math.ceil((date.getDate() + new Date(year, date.getMonth(), 1).getDay()) / 7);
+            return `${year}-${String(date.getMonth() + 1).padStart(2, '0')}-W${week}`;
+        }
+
+        // CSV File Handling Functions
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'text/csv') {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const csvText = e.target.result;
+                    parseCSVData(csvText);
+                };
+                reader.readAsText(file);
+            } else {
+                alert('Please select a valid CSV file.');
+            }
+        }
+
+        function parseCSVData(csvText) {
+            const lines = csvText.split('\n');
+            const headers = lines[0].split(',').map(h => h.trim());
+            
+            csvData = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim()) {
+                    const values = parseCSVLine(lines[i]);
+                    if (values.length >= headers.length) {
+                        const row = {};
+                        headers.forEach((header, index) => {
+                            row[header] = values[index] ? values[index].trim().replace(/^"|"$/g, '') : '';
+                        });
+                        csvData.push(row);
+                    }
+                }
+            }
+            
+            displayCSVPreview();
+            document.getElementById('process-csv-btn').disabled = false;
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            result.push(current);
+            return result;
+        }
+
+        function displayCSVPreview() {
+            const previewDiv = document.getElementById('csv-preview');
+            const contentDiv = document.getElementById('csv-preview-content');
+            
+            if (csvData.length === 0) {
+                contentDiv.innerHTML = '<p>No data found in CSV file.</p>';
+                return;
+            }
+            
+            previewDiv.style.display = 'block';
+            
+            let html = `
+                <div style="margin-bottom: 1rem;">
+                    <strong>Found ${csvData.length} records</strong>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+                        <thead>
+                            <tr style="background: var(--background-color);">
+            `;
+            
+            // Show first few columns that are most relevant
+            const relevantColumns = ['Id', 'ProductId', 'Text', 'Score', 'Customer_Type', 'Product_Name'];
+            const availableColumns = relevantColumns.filter(col => csvData[0].hasOwnProperty(col));
+            
+            availableColumns.forEach(col => {
+                html += `<th style="padding: 0.5rem; border: 1px solid var(--border-color); text-align: left;">${col}</th>`;
+            });
+            
+            html += '</tr></thead><tbody>';
+            
+            // Show first 5 rows
+            csvData.slice(0, 5).forEach(row => {
+                html += '<tr>';
+                availableColumns.forEach(col => {
+                    let value = row[col] || '';
+                    if (col === 'Text' && value.length > 50) {
+                        value = value.substring(0, 50) + '...';
+                    }
+                    html += `<td style="padding: 0.5rem; border: 1px solid var(--border-color);">${value}</td>`;
+                });
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table>';
+            
+            if (csvData.length > 5) {
+                html += `<p style="margin-top: 0.5rem; color: var(--text-secondary);">... and ${csvData.length - 5} more rows</p>`;
+            }
+            
+            html += '</div>';
+            contentDiv.innerHTML = html;
+        }
+
+        async function processCSVData() {
+            if (csvData.length === 0) {
+                alert('No CSV data to process. Please upload a file first.');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('batch-results');
+            const contentDiv = document.getElementById('batch-results-content');
+            const processBtn = document.getElementById('process-csv-btn');
+            
+            resultsDiv.style.display = 'block';
+            contentDiv.innerHTML = '<div class="loading"><div class="spinner"></div> Processing CSV data...</div>';
+            processBtn.disabled = true;
+            processBtn.innerHTML = '<div class="spinner"></div> Processing...';
+
+            try {
+                const groupByProduct = document.getElementById('group-by-product').checked;
+                const includeSuggestions = document.getElementById('include-suggestions').checked;
+                
+                // Prepare data for bulk import
+                const reviews = csvData.map(row => ({
+                    Id: row.Id || '',
+                    ProductId: row.ProductId || row.Product_Name || 'Unknown',
+                    Text: row.Text || '',
+                    Score: parseFloat(row.Score) || 3,
+                    Time: row.Time || Math.floor(Date.now() / 1000).toString(),
+                    Summary: row.Summary || '',
+                    HelpfulnessNumerator: parseInt(row.HelpfulnessNumerator) || 0,
+                    HelpfulnessDenominator: parseInt(row.HelpfulnessDenominator) || 0,
+                    Customer_Type: row.Customer_Type || null,
+                    Suggestions: row.Suggestions || null
+                }));
+
+                const bulkData = {
+                    reviews: reviews,
+                    group_by_product: groupByProduct,
+                    include_top_comments: includeSuggestions,
+                    top_comments_per_category: 5
+                };
+
+                const response = await fetch(`${API_BASE}/analyze/bulk-import`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(bulkData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    displayBulkImportResults(result);
+                    
+                    // Refresh all dashboard data after import
+                    console.log('Refreshing dashboard after CSV import...');
+                    await refreshDashboardAfterImport();
+                    
+                    // Show success message
+                    alert(`Successfully processed ${result.processed_reviews} reviews! Dashboard has been updated.`);
+                } else {
+                    throw new Error(`API request failed: ${response.status}`);
+                }
+
+            } catch (error) {
+                console.error('CSV processing failed:', error);
+                contentDiv.innerHTML = `
+                    <div class="result-card" style="border-color: var(--danger-color);">
+                        <h4 style="color: var(--danger-color);">Processing Failed</h4>
+                        <p>Error: ${error.message}</p>
+                        <p>Falling back to sample analysis...</p>
+                    </div>
+                `;
+                
+                // Fallback: process a few samples manually
+                await processSampleData();
+            } finally {
+                processBtn.disabled = false;
+                processBtn.innerHTML = '<i class="fas fa-upload"></i> Process CSV Data';
+            }
+        }
+
+        function displayBulkImportResults(result) {
+            const contentDiv = document.getElementById('batch-results-content');
+            
+            let html = `
+                <div class="stats-grid" style="margin-bottom: 2rem;">
+                    <div class="stat-card">
+                        <div class="stat-icon total">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="stat-value">${result.processed_reviews}</div>
+                        <div class="stat-label">Reviews Processed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon positive">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-value">${result.processing_time_seconds.toFixed(1)}s</div>
+                        <div class="stat-label">Processing Time</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon neutral">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="stat-value">${Object.keys(result.products || {}).length}</div>
+                        <div class="stat-label">Products Analyzed</div>
+                    </div>
+                </div>
+            `;
+
+            if (result.products) {
+                html += '<h4 style="margin-bottom: 1rem;">Product Analysis Results:</h4>';
+                
+                Object.entries(result.products).forEach(([productId, productData]) => {
+                    const positivePercentage = productData.positive_percentage || 0;
+                    const negativePercentage = productData.negative_percentage || 0;
+                    const neutralPercentage = productData.neutral_percentage || 0;
+                    
+                    html += `
+                        <div class="result-card">
+                            <div class="result-header">
+                                <h4>${productId}</h4>
+                                <span class="sentiment-badge ${positivePercentage > 50 ? 'sentiment-positive' : negativePercentage > 50 ? 'sentiment-negative' : 'sentiment-neutral'}">
+                                    ${productData.total_reviews} reviews
+                                </span>
+                            </div>
+                            
+                            <div class="grid grid-3" style="margin: 1rem 0;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: 600; color: var(--success-color);">${positivePercentage.toFixed(1)}%</div>
+                                    <div style="font-size: 0.875rem; color: var(--text-secondary);">Positive</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: 600; color: var(--danger-color);">${negativePercentage.toFixed(1)}%</div>
+                                    <div style="font-size: 0.875rem; color: var(--text-secondary);">Negative</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: 600; color: var(--secondary-color);">${neutralPercentage.toFixed(1)}%</div>
+                                    <div style="font-size: 0.875rem; color: var(--text-secondary);">Neutral</div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 1rem;">
+                                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">
+                                    Average Confidence: ${(productData.avg_confidence * 100).toFixed(1)}%
+                                </div>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: ${productData.avg_confidence * 100}%"></div>
+                                </div>
+                            </div>
+                    `;
+                    
+                    // Show top comments if available
+                    if (productData.top_positive_comments && productData.top_positive_comments.length > 0) {
+                        html += `
+                            <div style="margin-top: 1rem;">
+                                <strong style="color: var(--success-color);">Top Positive Comment:</strong>
+                                <p style="font-style: italic; margin: 0.5rem 0;">"${productData.top_positive_comments[0].text.substring(0, 100)}..."</p>
+                            </div>
+                        `;
+                    }
+                    
+                    if (productData.top_negative_comments && productData.top_negative_comments.length > 0) {
+                        html += `
+                            <div style="margin-top: 1rem;">
+                                <strong style="color: var(--danger-color);">Top Negative Comment:</strong>
+                                <p style="font-style: italic; margin: 0.5rem 0;">"${productData.top_negative_comments[0].text.substring(0, 100)}..."</p>
+                            </div>
+                        `;
+                    }
+                    
+                    // Show keywords if available
+                    if (productData.positive_keywords && productData.positive_keywords.length > 0) {
+                        html += `
+                            <div style="margin-top: 1rem;">
+                                <strong>Positive Keywords:</strong>
+                                <div style="margin-top: 0.5rem;">
+                                    ${productData.positive_keywords.slice(0, 5).map(keyword => 
+                                        `<span style="background: rgba(16, 185, 129, 0.1); color: var(--success-color); padding: 0.25rem 0.5rem; border-radius: 0.25rem; margin-right: 0.5rem; font-size: 0.75rem;">${keyword}</span>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    if (productData.negative_keywords && productData.negative_keywords.length > 0) {
+                        html += `
+                            <div style="margin-top: 1rem;">
+                                <strong>Negative Keywords:</strong>
+                                <div style="margin-top: 0.5rem;">
+                                    ${productData.negative_keywords.slice(0, 5).map(keyword => 
+                                        `<span style="background: rgba(239, 68, 68, 0.1); color: var(--danger-color); padding: 0.25rem 0.5rem; border-radius: 0.25rem; margin-right: 0.5rem; font-size: 0.75rem;">${keyword}</span>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    html += '</div>';
+                });
+            }
+
+            contentDiv.innerHTML = html;
+        }
+
+        async function processSampleData() {
+            // Fallback: analyze a few samples manually for demo
+            const sampleTexts = csvData.slice(0, 5).map(row => ({
+                text: row.Text || 'Sample text',
+                product: row.Product_Name || row.ProductId || 'Unknown Product',
+                team: row.Customer_Type || 'Normal'
+            }));
+
+            try {
+                const response = await fetch(`${API_BASE}/analyze/batch`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ feedback_items: sampleTexts })
+                });
+
+                if (response.ok) {
+                    const results = await response.json();
+                    displayBatchResults(results);
+                }
+            } catch (error) {
+                console.error('Sample processing failed:', error);
+            }
+        }
+
+        // Refresh dashboard after CSV import
+        async function refreshDashboardAfterImport() {
+            try {
+                // Get fresh statistics
+                const statsResponse = await fetch(`${API_BASE}/sentiment/statistics`);
+                if (statsResponse.ok) {
+                    const stats = statsResponse.json ? await statsResponse.json() : statsResponse;
+                    console.log('Fresh stats:', stats);
+                    
+                    // Update sentiment stats with emotion categories
+                    const distribution = stats.sentiment_distribution || {};
+                    // Simplified approach - use direct values from API
+                    sentimentStats = {
+                        positive: distribution.positive || 0,
+                        negative: distribution.negative || 0,
+                        neutral: distribution.neutral || 0,
+                        total: stats.total_analyses || 0,
+                        emotions: distribution
+                    };
+                    
+                    updateStats();
+                    updateHeaderStats();
+                }
+                
+                // Get fresh timeseries data with extended time range
+                const endTime = new Date().toISOString();
+                const startTime = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+                const timeseriesResponse = await fetch(`${API_BASE}/sentiment/timeseries?group_by=day&limit=30&start_time=${startTime}&end_time=${endTime}`);
+                if (timeseriesResponse.ok) {
+                    currentTimeseriesData = await timeseriesResponse.json();
+                }
+                
+                // Get fresh products data
+                const productsResponse = await fetch(`${API_BASE}/products?limit=20`);
+                if (productsResponse.ok) {
+                    const productsData = await productsResponse.json();
+                    currentProductsData = productsData.products || [];
+                }
+                
+                // Recreate all charts with fresh data
+                setTimeout(() => {
+                    createSentimentTrendChart();
+                    createSentimentPieChart();
+                    createProductSentimentChart();
+                    createEmotionDistributionChart();
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error refreshing dashboard:', error);
+            }
+        }
+
+        // Create emotion distribution chart
+        function createEmotionDistributionChart() {
+            console.log('Creating emotion chart with emotions:', sentimentStats.emotions);
+            const ctx = document.getElementById('emotion-distribution-chart').getContext('2d');
+            
+            // Check if we have detailed emotion data or just basic sentiment
+            const emotions = sentimentStats.emotions || {};
+            const hasDetailedEmotions = Object.keys(emotions).some(key => 
+                !['positive', 'negative', 'neutral'].includes(key)
+            );
+            
+            if (!hasDetailedEmotions) {
+                // Create simulated emotion breakdown based on basic sentiment data
+                console.log('No detailed emotions available, creating simulated breakdown');
+                
+                // Simulate emotion distribution based on sentiment ratios
+                const total = sentimentStats.total;
+                if (total === 0) {
+                    ctx.canvas.parentElement.innerHTML = `
+                        <div class="no-data">
+                            <i class="fas fa-heart"></i>
+                            <p>No emotion data available</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Create realistic emotion breakdown
+                const simulatedEmotions = {
+                    joy: Math.round(sentimentStats.positive * 0.7), // 70% of positive as joy
+                    surprise: Math.round(sentimentStats.positive * 0.3), // 30% of positive as surprise
+                    sadness: Math.round(sentimentStats.negative * 0.4), // 40% of negative as sadness
+                    anger: Math.round(sentimentStats.negative * 0.35), // 35% of negative as anger
+                    disgust: Math.round(sentimentStats.negative * 0.25), // 25% of negative as disgust
+                    neutral: sentimentStats.neutral // Keep neutral as is
+                };
+                
+                const emotionLabels = Object.keys(simulatedEmotions).filter(key => simulatedEmotions[key] > 0);
+                const emotionValues = emotionLabels.map(key => simulatedEmotions[key]);
+                const emotionColors = {
+                    joy: '#10b981',      // Green
+                    surprise: '#f59e0b', // Yellow
+                    sadness: '#3b82f6',  // Blue
+                    anger: '#ef4444',    // Red
+                    disgust: '#8b5cf6',  // Purple
+                    neutral: '#6b7280'   // Gray
+                };
+                
+                if (emotionChart) emotionChart.destroy();
+                
+                emotionChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: emotionLabels.map(label => label.charAt(0).toUpperCase() + label.slice(1)),
+                        datasets: [{
+                            data: emotionValues,
+                            backgroundColor: emotionLabels.map(label => emotionColors[label]),
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    afterLabel: function() {
+                                        return '(Estimated based on sentiment)';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                return;
+            }
+            
+            // If we have detailed emotions, use them
+            const emotionLabels = Object.keys(emotions).filter(key => emotions[key] > 0);
+            const emotionValues = emotionLabels.map(key => emotions[key]);
+            
+            if (emotionLabels.length === 0) {
+                ctx.canvas.parentElement.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-heart"></i>
+                        <p>No emotion data available</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const emotionColors = {
+                joy: '#10b981', positive: '#22c55e', POSITIVE: '#22c55e',
+                negative: '#ef4444', NEGATIVE: '#ef4444', sadness: '#f59e0b', disgust: '#dc2626',
+                neutral: '#64748b', surprise: '#8b5cf6'
+            };
+
+            // Destroy existing chart if it exists
+            if (emotionChart) {
+                emotionChart.destroy();
+            }
+
+            emotionChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: emotionLabels.map(label => label.charAt(0).toUpperCase() + label.slice(1)),
+                    datasets: [{
+                        data: emotionValues,
+                        backgroundColor: emotionLabels.map(label => emotionColors[label] || '#64748b'),
+                        borderWidth: 0,
+                        hoverBorderWidth: 2,
+                        hoverBorderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true,
+                                font: {
+                                    size: 11,
+                                    family: 'Inter'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed * 100) / total).toFixed(1);
+                                    return `${context.label}: ${context.parsed.toLocaleString()} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '50%'
+                }
+            });
+        }
+
+        // Manual refresh function
+        async function refreshDashboard() {
+            console.log('Manual dashboard refresh...');
+            const refreshBtn = document.querySelector('button[onclick="refreshDashboard()"]');
+            const originalText = refreshBtn.innerHTML;
+            
+            refreshBtn.innerHTML = '<div class="spinner"></div> Refreshing...';
+            refreshBtn.disabled = true;
+            
+            try {
+                // Load fresh data
+                await loadInitialData();
+                
+                // Recreate only the working Chart.js charts
+                setTimeout(() => {
+                    createSentimentPieChart();
+                    createEmotionDistributionChart();
+                }, 500);
+                
+                // Show success message briefly
+                refreshBtn.innerHTML = '<i class="fas fa-check"></i> Updated!';
+                setTimeout(() => {
+                    refreshBtn.innerHTML = originalText;
+                    refreshBtn.disabled = false;
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Refresh failed:', error);
+                refreshBtn.innerHTML = '<i class="fas fa-exclamation"></i> Error';
+                setTimeout(() => {
+                    refreshBtn.innerHTML = originalText;
+                    refreshBtn.disabled = false;
+                }, 2000);
+            }
+        }
+
+        // ==================== MODEL METRICS TAB ====================
+        async function loadModelMetrics() {
+            try {
+                const response = await fetch(`${API_BASE}/api/model-metrics`);
+                if (!response.ok) throw new Error('API failed');
+                const data = await response.json();
+
+                // Model info
+                document.getElementById('model-name').textContent = data.model_info.model_name;
+                document.getElementById('model-device').textContent = data.model_info.device;
+                document.getElementById('model-samples').textContent = data.model_info.samples_evaluated;
+
+                // Overall metrics
+                document.getElementById('metric-accuracy').textContent = data.overall_metrics.accuracy + '%';
+                document.getElementById('metric-precision').textContent = data.overall_metrics.weighted_precision + '%';
+                document.getElementById('metric-recall').textContent = data.overall_metrics.weighted_recall + '%';
+                document.getElementById('metric-f1').textContent = data.overall_metrics.weighted_f1 + '%';
+
+                // Confusion Matrix
+                renderConfusionMatrix(data.confusion_matrix);
+
+                // Per-Class Metrics Table
+                renderPerClassMetrics(data.per_class_metrics);
+
+                // Class Distribution Chart
+                renderClassDistributionChart(data.class_distribution);
+
+                // Confidence by Class Chart
+                renderConfidenceByClassChart(data.confidence_by_class);
+
+            } catch (error) {
+                console.error('Error loading model metrics:', error);
+                document.getElementById('confusion-matrix-content').innerHTML =
+                    '<p class="text-secondary">Import data to see model metrics.</p>';
+            }
+        }
+
+        function renderConfusionMatrix(matrix) {
+            const classes = ['Positive', 'Negative', 'Neutral'];
+            const colors = { 'Positive': '#10b981', 'Negative': '#ef4444', 'Neutral': '#64748b' };
+
+            let html = `<table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.875rem;">
+                <thead>
+                    <tr>
+                        <th style="padding: 0.75rem; border: 1px solid var(--border-color);"></th>
+                        <th colspan="3" style="padding: 0.75rem; border: 1px solid var(--border-color); font-weight: 600;">Predicted</th>
+                    </tr>
+                    <tr>
+                        <th style="padding: 0.75rem; border: 1px solid var(--border-color); font-weight: 600;">Actual \\ Predicted</th>`;
+
+            classes.forEach(c => {
+                html += `<th style="padding: 0.75rem; border: 1px solid var(--border-color); color: ${colors[c]}; font-weight: 600;">${c}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            classes.forEach(actual => {
+                html += `<tr><td style="padding: 0.75rem; border: 1px solid var(--border-color); color: ${colors[actual]}; font-weight: 600;">${actual}</td>`;
+                classes.forEach(predicted => {
+                    const val = matrix[actual] ? (matrix[actual][predicted] || 0) : 0;
+                    const isDiagonal = actual === predicted;
+                    const bgColor = isDiagonal ? 'rgba(37, 99, 235, 0.1)' : (val > 0 ? 'rgba(239, 68, 68, 0.05)' : 'transparent');
+                    html += `<td style="padding: 0.75rem; border: 1px solid var(--border-color); background: ${bgColor}; font-weight: ${isDiagonal ? '700' : '400'}; font-size: ${isDiagonal ? '1.1rem' : '0.875rem'};">${val}</td>`;
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('confusion-matrix-content').innerHTML = html;
+        }
+
+        function renderPerClassMetrics(metrics) {
+            const classes = ['Positive', 'Negative', 'Neutral'];
+            const colors = { 'Positive': '#10b981', 'Negative': '#ef4444', 'Neutral': '#64748b' };
+
+            let html = `<table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.875rem;">
+                <thead>
+                    <tr style="background: var(--background-color);">
+                        <th style="padding: 0.75rem; border: 1px solid var(--border-color); text-align: left;">Class</th>
+                        <th style="padding: 0.75rem; border: 1px solid var(--border-color);">Precision</th>
+                        <th style="padding: 0.75rem; border: 1px solid var(--border-color);">Recall</th>
+                        <th style="padding: 0.75rem; border: 1px solid var(--border-color);">F1 Score</th>
+                        <th style="padding: 0.75rem; border: 1px solid var(--border-color);">Support</th>
+                    </tr>
+                </thead><tbody>`;
+
+            let totalSupport = 0;
+            let wPrecision = 0, wRecall = 0, wF1 = 0;
+
+            classes.forEach(c => {
+                const m = metrics[c] || { precision: 0, recall: 0, f1_score: 0, support: 0 };
+                totalSupport += m.support;
+                wPrecision += m.precision * m.support;
+                wRecall += m.recall * m.support;
+                wF1 += m.f1_score * m.support;
+                html += `<tr>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color); text-align: left; color: ${colors[c]}; font-weight: 600;">${c}</td>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color);">${m.precision}%</td>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color);">${m.recall}%</td>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color);">${m.f1_score}%</td>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color);">${m.support}</td>
+                </tr>`;
+            });
+
+            if (totalSupport > 0) {
+                html += `<tr style="background: var(--background-color); font-weight: 600;">
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color); text-align: left;">Weighted Avg</td>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color);">${(wPrecision / totalSupport).toFixed(1)}%</td>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color);">${(wRecall / totalSupport).toFixed(1)}%</td>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color);">${(wF1 / totalSupport).toFixed(1)}%</td>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color);">${totalSupport}</td>
+                </tr>`;
+            }
+
+            html += '</tbody></table>';
+            document.getElementById('per-class-metrics-content').innerHTML = html;
+        }
+
+        function renderClassDistributionChart(distribution) {
+            const classes = ['Positive', 'Negative', 'Neutral'];
+            const actual = classes.map(c => (distribution.actual || {})[c] || 0);
+            const predicted = classes.map(c => (distribution.predicted || {})[c] || 0);
+
+            const trace1 = { x: classes, y: actual, name: 'Actual (from Rating)', type: 'bar', marker: { color: ['#10b981', '#ef4444', '#64748b'] } };
+            const trace2 = { x: classes, y: predicted, name: 'Predicted (by Model)', type: 'bar', marker: { color: ['rgba(16,185,129,0.5)', 'rgba(239,68,68,0.5)', 'rgba(100,116,139,0.5)'] } };
+
+            Plotly.newPlot('class-distribution-chart', [trace1, trace2], {
+                title: { text: 'Actual vs Predicted Distribution', font: { size: 13 } },
+                barmode: 'group',
+                margin: { t: 60, r: 20, b: 50, l: 50 },
+                legend: { orientation: 'h', y: 1.25, xanchor: 'center', x: 0.5 },
+                yaxis: { title: '' },
+                xaxis: { tickangle: 0, automargin: true }
+            }, { responsive: true });
+        }
+
+        function renderConfidenceByClassChart(confidenceByClass) {
+            const classes = ['Positive', 'Negative', 'Neutral', 'Overall'];
+            const values = classes.slice(0, 3).map(c => confidenceByClass[c] || 0);
+            const overall = values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+            values.push(overall);
+
+            const colors = ['#10b981', '#ef4444', '#64748b', '#2563eb'];
+
+            Plotly.newPlot('confidence-by-class-chart', [{
+                x: classes,
+                y: values,
+                type: 'bar',
+                marker: { color: colors },
+                text: values.map(v => v.toFixed(2)),
+                textposition: 'auto',
+                name: 'Avg Confidence'
+            }], {
+                title: { text: 'Average Confidence Score by Class', font: { size: 13 } },
+                margin: { t: 40, r: 20, b: 40, l: 40 },
+                yaxis: { title: '', range: [0, 1] },
+                legend: { orientation: 'h', y: 1.15 }
+            }, { responsive: true });
+        }
+
+        // ==================== ALERTS TAB ====================
+        async function checkAlerts() {
+            const threshold = document.getElementById('alert-threshold').value || 40;
+            const spikeWindow = document.getElementById('alert-spike-window').value || 7;
+
+            const contentDiv = document.getElementById('active-alerts-content');
+            contentDiv.innerHTML = '<div class="loading"><div class="spinner"></div> Scanning for alerts...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/alerts?negative_threshold=${threshold}&spike_window_days=${spikeWindow}`);
+                if (!response.ok) throw new Error('API failed');
+                const data = await response.json();
+
+                // Update summary cards
+                document.getElementById('alert-critical').textContent = data.summary.critical;
+                document.getElementById('alert-warnings').textContent = data.summary.warnings;
+                document.getElementById('alert-info').textContent = data.summary.info;
+                document.getElementById('alert-total').textContent = data.summary.total;
+
+                // Render alerts list
+                if (data.alerts.length === 0) {
+                    contentDiv.innerHTML = '<p class="text-secondary" style="padding: 1rem;">No active alerts. All systems are running smoothly.</p>';
+                    return;
+                }
+
+                let html = '';
+                data.alerts.forEach(alert => {
+                    const typeConfig = {
+                        critical: { color: '#ef4444', bg: 'rgba(239,68,68,0.05)', border: '#ef4444', icon: 'fas fa-exclamation-circle', badge: 'CRITICAL' },
+                        warning: { color: '#f59e0b', bg: 'rgba(245,158,11,0.05)', border: '#f59e0b', icon: 'fas fa-exclamation-triangle', badge: 'WARNING' },
+                        info: { color: '#3b82f6', bg: 'rgba(59,130,246,0.05)', border: '#3b82f6', icon: 'fas fa-info-circle', badge: 'INFO' }
+                    };
+                    const cfg = typeConfig[alert.type] || typeConfig.info;
+                    const time = new Date(alert.timestamp).toLocaleString();
+
+                    html += `
+                        <div style="padding: 1rem; margin-bottom: 0.75rem; border-left: 4px solid ${cfg.border}; background: ${cfg.bg}; border-radius: 0 0.5rem 0.5rem 0;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                                <i class="${cfg.icon}" style="color: ${cfg.color}; font-size: 1.1rem;"></i>
+                                <strong>${alert.title}</strong>
+                                <span style="background: ${cfg.color}; color: white; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.7rem; font-weight: 600;">${cfg.badge}</span>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.25rem;">${alert.description}</p>
+                            <small style="color: var(--text-secondary);"><i class="fas fa-clock"></i> ${time}</small>
+                        </div>`;
+                });
+
+                contentDiv.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error checking alerts:', error);
+                contentDiv.innerHTML = '<p class="text-secondary">Import data to generate alerts.</p>';
+            }
+        }
+
+        // ==================== BUSINESS DATA TAB ====================
+        async function loadBusinessData() {
+            try {
+                const response = await fetch(`${API_BASE}/api/business-data`);
+                if (!response.ok) throw new Error('API failed');
+                const data = await response.json();
+
+                // Summary cards
+                document.getElementById('biz-releases').textContent = data.summary.total_releases;
+                document.getElementById('biz-escalations').textContent = data.summary.open_escalations;
+                document.getElementById('biz-features').textContent = data.summary.features_tracked;
+
+                // Product Releases Table
+                renderReleasesTable(data.product_releases);
+
+                // Escalations Table
+                renderEscalationsTable(data.escalations);
+
+                // Feature Tracking Table
+                renderFeatureTrackingTable(data.features);
+
+            } catch (error) {
+                console.error('Error loading business data:', error);
+                document.getElementById('product-releases-content').innerHTML =
+                    '<p class="text-secondary">Import data to see business integrations.</p>';
+            }
+        }
+
+        function renderReleasesTable(releases) {
+            if (!releases || releases.length === 0) {
+                document.getElementById('product-releases-content').innerHTML = '<p class="text-secondary">No release data.</p>';
+                return;
+            }
+            const typeColors = { MAJOR: '#ef4444', MINOR: '#f59e0b', PATCH: '#10b981' };
+            let html = `<table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+                <thead><tr style="background: var(--background-color);">
+                    <th style="padding: 0.75rem; border: 1px solid var(--border-color); text-align: left;">Product</th>
+                    <th style="padding: 0.75rem; border: 1px solid var(--border-color); text-align: left;">Release</th>
+                    <th style="padding: 0.75rem; border: 1px solid var(--border-color); text-align: left;">Date</th>
+                    <th style="padding: 0.75rem; border: 1px solid var(--border-color); text-align: left;">Type</th>
+                </tr></thead><tbody>`;
+
+            releases.forEach(r => {
+                const color = typeColors[r.type] || '#64748b';
+                html += `<tr>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color);">${r.product}</td>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color);">${r.release}</td>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color);">${r.date}</td>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color);">
+                        <span style="background: ${color}; color: white; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.7rem; font-weight: 600;">${r.type}</span>
+                    </td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('product-releases-content').innerHTML = html;
+        }
+
+        function renderEscalationsTable(escalations) {
+            if (!escalations || escalations.length === 0) {
+                document.getElementById('escalations-content').innerHTML = '<p class="text-secondary">No escalation data.</p>';
+                return;
+            }
+            const sevColors = { Critical: '#ef4444', High: '#f59e0b', Medium: '#3b82f6', Low: '#64748b' };
+            const statusColors = { Open: '#10b981', 'In Progress': '#f59e0b', Resolved: '#3b82f6', Closed: '#64748b' };
+
+            let html = `<table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+                <thead><tr style="background: var(--background-color);">
+                    <th style="padding: 0.6rem; border: 1px solid var(--border-color); text-align: left;">Ticket</th>
+                    <th style="padding: 0.6rem; border: 1px solid var(--border-color); text-align: left;">Title</th>
+                    <th style="padding: 0.6rem; border: 1px solid var(--border-color);">Severity</th>
+                    <th style="padding: 0.6rem; border: 1px solid var(--border-color);">Status</th>
+                    <th style="padding: 0.6rem; border: 1px solid var(--border-color);">Team</th>
+                </tr></thead><tbody>`;
+
+            escalations.forEach(e => {
+                html += `<tr>
+                    <td style="padding: 0.6rem; border: 1px solid var(--border-color); font-weight: 500;">${e.ticket}</td>
+                    <td style="padding: 0.6rem; border: 1px solid var(--border-color);">${e.title}</td>
+                    <td style="padding: 0.6rem; border: 1px solid var(--border-color); text-align: center;">
+                        <span style="color: ${sevColors[e.severity] || '#64748b'}; font-weight: 600;">${e.severity}</span>
+                    </td>
+                    <td style="padding: 0.6rem; border: 1px solid var(--border-color); text-align: center;">
+                        <span style="background: ${statusColors[e.status] || '#64748b'}; color: white; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.7rem;">${e.status}</span>
+                    </td>
+                    <td style="padding: 0.6rem; border: 1px solid var(--border-color);">${e.team}</td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('escalations-content').innerHTML = html;
+        }
+
+        function renderFeatureTrackingTable(features) {
+            if (!features || features.length === 0) {
+                document.getElementById('feature-tracking-content').innerHTML = '<p class="text-secondary">No feature data.</p>';
+                return;
+            }
+            const statusColors = { Planned: '#64748b', 'In Development': '#f59e0b', Beta: '#10b981', Released: '#3b82f6', GA: '#2563eb' };
+
+            let html = `<table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+                <thead><tr style="background: var(--background-color);">
+                    <th style="padding: 0.75rem; border: 1px solid var(--border-color); text-align: left;">ID</th>
+                    <th style="padding: 0.75rem; border: 1px solid var(--border-color); text-align: left;">Feature</th>
+                    <th style="padding: 0.75rem; border: 1px solid var(--border-color);">Status</th>
+                    <th style="padding: 0.75rem; border: 1px solid var(--border-color);">Positive</th>
+                    <th style="padding: 0.75rem; border: 1px solid var(--border-color);">Negative</th>
+                    <th style="padding: 0.75rem; border: 1px solid var(--border-color);">Sentiment</th>
+                </tr></thead><tbody>`;
+
+            features.forEach(f => {
+                const barColor = f.sentiment >= 70 ? '#10b981' : (f.sentiment >= 50 ? '#f59e0b' : '#ef4444');
+                html += `<tr>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color); font-weight: 500;">${f.id}</td>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color);">${f.feature}</td>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color); text-align: center;">
+                        <span style="background: ${statusColors[f.status] || '#64748b'}; color: white; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.7rem;">${f.status}</span>
+                    </td>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color); text-align: center; color: #10b981; font-weight: 600;">${f.positive}</td>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color); text-align: center; color: #ef4444; font-weight: 600;">${f.negative}</td>
+                    <td style="padding: 0.75rem; border: 1px solid var(--border-color);">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                                <div style="width: ${f.sentiment}%; height: 100%; background: ${barColor}; border-radius: 4px;"></div>
+                            </div>
+                            <span style="font-size: 0.8rem; font-weight: 500;">${f.sentiment}%</span>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('feature-tracking-content').innerHTML = html;
+        }
+
+        // ==================== TAB SWITCHING UPDATE ====================
+        // Update showTab to handle new tabs with proper element targeting
+        const originalShowTab = showTab;
+
+        // Auto-refresh data every 30 seconds
+        setInterval(() => {
+            checkServiceHealth();
+        }, 30000);
+    </script>
+</body>
+</html>

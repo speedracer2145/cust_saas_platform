@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Dashboard Data Loading</title>
+</head>
+<body>
+    <h1>Debug Dashboard Data Loading</h1>
+    <div id="debug-output"></div>
+    
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        
+        async function debugDataLoading() {
+            const debugDiv = document.getElementById('debug-output');
+            let html = '<h2>API Testing Results:</h2>';
+            
+            try {
+                // Test health
+                const healthResponse = await fetch(`${API_BASE}/health`);
+                html += `<p>Health API: ${healthResponse.status} - ${healthResponse.ok ? 'OK' : 'FAILED'}</p>`;
+                
+                // Test statistics
+                const statsResponse = await fetch(`${API_BASE}/sentiment/statistics`);
+                html += `<p>Statistics API: ${statsResponse.status} - ${statsResponse.ok ? 'OK' : 'FAILED'}</p>`;
+                
+                if (statsResponse.ok) {
+                    const stats = await statsResponse.json();
+                    html += `<pre>Statistics Data: ${JSON.stringify(stats, null, 2)}</pre>`;
+                    
+                    // Calculate sentiment stats
+                    const distribution = stats.sentiment_distribution || {};
+                    const positive = (distribution.positive || 0) + (distribution.POSITIVE || 0) + (distribution.joy || 0);
+                    const negative = (distribution.negative || 0) + (distribution.NEGATIVE || 0) + (distribution.sadness || 0) + (distribution.disgust || 0);
+                    const neutral = (distribution.neutral || 0) + (distribution.surprise || 0);
+                    
+                    html += `<h3>Calculated Values:</h3>`;
+                    html += `<p>Positive: ${positive}</p>`;
+                    html += `<p>Negative: ${negative}</p>`;
+                    html += `<p>Neutral: ${neutral}</p>`;
+                    html += `<p>Total: ${stats.total_analyses}</p>`;
+                }
+                
+                // Test products
+                const productsResponse = await fetch(`${API_BASE}/products`);
+                html += `<p>Products API: ${productsResponse.status} - ${productsResponse.ok ? 'OK' : 'FAILED'}</p>`;
+                
+                if (productsResponse.ok) {
+                    const products = await productsResponse.json();
+                    html += `<p>Products found: ${products.products ? products.products.length : 0}</p>`;
+                    if (products.products && products.products.length > 0) {
+                        html += `<pre>First Product: ${JSON.stringify(products.products[0], null, 2)}</pre>`;
+                    }
+                }
+                
+                // Test timeseries
+                const timeseriesResponse = await fetch(`${API_BASE}/sentiment/timeseries?group_by=day&limit=10`);
+                html += `<p>Timeseries API: ${timeseriesResponse.status} - ${timeseriesResponse.ok ? 'OK' : 'FAILED'}</p>`;
+                
+                if (timeseriesResponse.ok) {
+                    const timeseries = await timeseriesResponse.json();
+                    html += `<p>Timeseries points: ${timeseries ? timeseries.length : 0}</p>`;
+                    if (timeseries && timeseries.length > 0) {
+                        html += `<pre>First Timeseries Point: ${JSON.stringify(timeseries[0], null, 2)}</pre>`;
+                    }
+                }
+                
+            } catch (error) {
+                html += `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+            
+            debugDiv.innerHTML = html;
+        }
+        
+        debugDataLoading();
+    </script>
+</body>
+</html>

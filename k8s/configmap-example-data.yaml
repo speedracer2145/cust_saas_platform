@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: roberta-sentiment-example-data
+  namespace: roberta-sentiment
+  labels:
+    app: roberta-sentiment-service
+data:
+  example_customer_feedback.csv: |
+    text,product,timestamp,team
+    "I absolutely love this product! The quality is exceptional and the customer service was outstanding!",ProductA,2024-01-15T10:30:00,sales
+    "This item broke after just one week. Very disappointed with the quality.",ProductB,2024-01-15T11:15:00,support
+    "The product is okay, does what it's supposed to do but nothing special.",ProductA,2024-01-15T14:20:00,sales
+    "Excellent value for money. Highly recommend to anyone looking for this type of product!",ProductC,2024-01-16T09:00:00,marketing
+    "Terrible experience. The product doesn't work as advertised and support was unhelpful.",ProductB,2024-01-16T15:45:00,support
+    "Good product overall, but the delivery took longer than expected.",ProductA,2024-01-17T08:30:00,sales
+    "Amazing quality! This exceeded all my expectations. Will definitely buy again.",ProductC,2024-01-17T12:00:00,marketing
+    "The product is decent, but there are better alternatives available in the market.",ProductB,2024-01-18T10:00:00,support
+    "Outstanding product! Fast shipping and great packaging. Very satisfied!",ProductC,2024-01-18T16:20:00,marketing
+    "Poor quality control. Received a damaged item and had to return it.",ProductA,2024-01-19T09:15:00,sales
+
+

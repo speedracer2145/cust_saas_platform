@@ -1,0 +1,88 @@
+{
+  "reviews": [
+    {
+      "Id": "1",
+      "ProductId": "B001234567",
+      "Text": "I absolutely love this product! The quality is exceptional and it works perfectly. Highly recommend to everyone!",
+      "Score": 5.0,
+      "Time": "1346976000",
+      "Summary": "Excellent product",
+      "HelpfulnessNumerator": 10,
+      "HelpfulnessDenominator": 10
+    },
+    {
+      "Id": "2",
+      "ProductId": "B001234567",
+      "Text": "Great value for money. Works as expected and delivery was fast.",
+      "Score": 4.0,
+      "Time": "1347062400",
+      "Summary": "Good value",
+      "HelpfulnessNumerator": 8,
+      "HelpfulnessDenominator": 9
+    },
+    {
+      "Id": "3",
+      "ProductId": "B001234567",
+      "Text": "This product broke after just one week. Very disappointed with the quality.",
+      "Score": 1.0,
+      "Time": "1347148800",
+      "Summary": "Poor quality",
+      "HelpfulnessNumerator": 5,
+      "HelpfulnessDenominator": 6
+    },
+    {
+      "Id": "4",
+      "ProductId": "B007654321",
+      "Text": "The product is okay, does what it's supposed to do but nothing special. Average quality.",
+      "Score": 3.0,
+      "Time": "1347235200",
+      "Summary": "Average",
+      "HelpfulnessNumerator": 3,
+      "HelpfulnessDenominator": 5
+    },
+    {
+      "Id": "5",
+      "ProductId": "B007654321",
+      "Text": "Amazing quality! This exceeded all my expectations. Will definitely buy again.",
+      "Score": 5.0,
+      "Time": "1347321600",
+      "Summary": "Amazing",
+      "HelpfulnessNumerator": 12,
+      "HelpfulnessDenominator": 12
+    },
+    {
+      "Id": "6",
+      "ProductId": "B007654321",
+      "Text": "Terrible experience. The product doesn't work as advertised.",
+      "Score": 1.0,
+      "Time": "1347408000",
+      "Summary": "Terrible",
+      "HelpfulnessNumerator": 4,
+      "HelpfulnessDenominator": 4
+    },
+    {
+      "Id": "7",
+      "ProductId": "B009876543",
+      "Text": "Outstanding product! Fast shipping and great packaging. Very satisfied!",
+      "Score": 5.0,
+      "Time": "1347494400",
+      "Summary": "Outstanding",
+      "HelpfulnessNumerator": 15,
+      "HelpfulnessDenominator": 15
+    },
+    {
+      "Id": "8",
+      "ProductId": "B009876543",
+      "Text": "Good product overall, excellent value for money. Delivery was fast.",
+      "Score": 4.0,
+      "Time": "1347580800",
+      "Summary": "Good value",
+      "HelpfulnessNumerator": 7,
+      "HelpfulnessDenominator": 8
+    }
+  ],
+  "group_by_product": true,
+  "include_top_comments": true,
+  "top_comments_per_category": 10
+}
+

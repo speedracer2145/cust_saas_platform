@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Professional Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Professional Dashboard Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testProfessionalDashboard() {
+            const results = document.getElementById('results');
+            
+            try {
+                // Test API access
+                const response = await fetch('http://localhost:8000/sentiment/statistics');
+                if (response.ok) {
+                    const data = await response.json();
+                    results.innerHTML += `<div class="test-result success">✅ API Working: ${data.total_analyses} total analyses</div>`;
+                    
+                    // Test professional dashboard access
+                    const dashResponse = await fetch('http://localhost:8000/professional_dashboard.html');
+                    if (dashResponse.ok) {
+                        results.innerHTML += `<div class="test-result success">✅ Professional Dashboard Accessible</div>`;
+                        results.innerHTML += `<div class="test-result success">📊 Data: ${data.sentiment_distribution.positive} positive, ${data.sentiment_distribution.negative} negative, ${data.sentiment_distribution.neutral} neutral</div>`;
+                        results.innerHTML += `<div class="test-result success">🔗 <a href="http://localhost:8000/professional_dashboard.html" target="_blank">Open Professional Dashboard</a></div>`;
+                    } else {
+                        results.innerHTML += `<div class="test-result error">❌ Professional Dashboard Not Accessible</div>`;
+                    }
+                } else {
+                    results.innerHTML += `<div class="test-result error">❌ API Not Working</div>`;
+                }
+            } catch (error) {
+                results.innerHTML += `<div class="test-result error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        testProfessionalDashboard();
+    </script>
+</body>
+</html>

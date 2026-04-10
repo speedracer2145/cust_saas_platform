@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chart.js Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 2rem; }
+        .chart-container { width: 400px; height: 400px; margin: 2rem; display: inline-block; }
+        .stats { margin: 1rem 0; padding: 1rem; background: #f0f0f0; border-radius: 0.5rem; }
+    </style>
+</head>
+<body>
+    <h1>Dashboard Chart Test</h1>
+    
+    <div class="stats" id="stats-display">
+        <p>Loading stats...</p>
+    </div>
+    
+    <div class="chart-container">
+        <h3>Sentiment Distribution</h3>
+        <canvas id="sentiment-chart"></canvas>
+    </div>
+    
+    <div class="chart-container">
+        <h3>Emotion Distribution</h3>
+        <canvas id="emotion-chart"></canvas>
+    </div>
+    
+    <button onclick="refreshData()" style="padding: 1rem; font-size: 1rem; margin: 1rem;">Refresh Data</button>
+    
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        let sentimentStats = { positive: 0, negative: 0, neutral: 0, total: 0, emotions: {} };
+        let sentimentChart = null;
+        let emotionChart = null;
+
+        async function loadData() {
+            try {
+                console.log('Loading data from API...');
+                const response = await fetch(`${API_BASE}/sentiment/statistics`);
+                
+                if (response.ok) {
+                    const stats = await response.json();
+                    console.log('Raw stats:', stats);
+                    
+                    const distribution = stats.sentiment_distribution || {};
+                    
+                    sentimentStats = {
+                        positive: (distribution.positive || 0) + (distribution.POSITIVE || 0) + (distribution.joy || 0),
+                        negative: (distribution.negative || 0) + (distribution.NEGATIVE || 0) + (distribution.sadness || 0) + (distribution.disgust || 0),
+                        neutral: (distribution.neutral || 0) + (distribution.surprise || 0),
+                        total: stats.total_analyses || 0,
+                        emotions: distribution
+                    };
+                    
+                    console.log('Processed stats:', sentimentStats);
+                    
+                    // Update stats display
+                    document.getElementById('stats-display').innerHTML = `
+                        <h3>Current Statistics</h3>
+                        <p><strong>Total:</strong> ${sentimentStats.total}</p>
+                        <p><strong>Positive:</strong> ${sentimentStats.positive}</p>
+                        <p><strong>Negative:</strong> ${sentimentStats.negative}</p>
+                        <p><strong>Neutral:</strong> ${sentimentStats.neutral}</p>
+                        <p><strong>Emotions:</strong> ${Object.keys(sentimentStats.emotions).join(', ')}</p>
+                    `;
+                    
+                    createCharts();
+                } else {
+                    console.error('API failed:', response.status);
+                    document.getElementById('stats-display').innerHTML = '<p style="color: red;">Failed to load data from API</p>';
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('stats-display').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+
+        function createCharts() {
+            createSentimentChart();
+            createEmotionChart();
+        }
+
+        function createSentimentChart() {
+            const ctx = document.getElementById('sentiment-chart').getContext('2d');
+            
+            if (sentimentChart) {
+                sentimentChart.destroy();
+            }
+            
+            if (sentimentStats.total === 0) {
+                ctx.canvas.parentElement.innerHTML = '<h3>Sentiment Distribution</h3><p>No data available</p>';
+                return;
+            }
+            
+            sentimentChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Positive', 'Negative', 'Neutral'],
+                    datasets: [{
+                        data: [sentimentStats.positive, sentimentStats.negative, sentimentStats.neutral],
+                        backgroundColor: ['#10b981', '#ef4444', '#64748b'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed * 100) / total).toFixed(1);
+                                    return `${context.label}: ${context.parsed} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createEmotionChart() {
+            const ctx = document.getElementById('emotion-chart').getContext('2d');
+            
+            if (emotionChart) {
+                emotionChart.destroy();
+            }
+            
+            const emotions = sentimentStats.emotions || {};
+            const emotionLabels = Object.keys(emotions).filter(key => emotions[key] > 0);
+            const emotionValues = emotionLabels.map(key => emotions[key]);
+            
+            if (emotionLabels.length === 0) {
+                ctx.canvas.parentElement.innerHTML = '<h3>Emotion Distribution</h3><p>No emotion data available</p>';
+                return;
+            }
+
+            const emotionColors = {
+                joy: '#10b981', positive: '#22c55e', POSITIVE: '#22c55e',
+                negative: '#ef4444', NEGATIVE: '#ef4444', sadness: '#f59e0b', disgust: '#dc2626',
+                neutral: '#64748b', surprise: '#8b5cf6'
+            };
+
+            emotionChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: emotionLabels.map(label => label.charAt(0).toUpperCase() + label.slice(1)),
+                    datasets: [{
+                        data: emotionValues,
+                        backgroundColor: emotionLabels.map(label => emotionColors[label] || '#64748b'),
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed * 100) / total).toFixed(1);
+                                    return `${context.label}: ${context.parsed} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function refreshData() {
+            console.log('Refreshing data...');
+            await loadData();
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>
